@@ -109,35 +109,4 @@ class TextCustomizationFeature {
       css: css,
     });
   }
-
-  static updateCustomStyle(type, values) {
-    const css = `
-      .subtitle {
-        font-size: var(--hr-subtitle-size) !important;
-        font-weight: var(--hr-subtitle-weight) !important;
-        color: var(--hr-subtitle-color) !important;
-        font-style: var(--hr-subtitle-style) !important;
-        text-align: var(--hr-subtitle-align) !important;
-        text-transform: var(--hr-subtitle-transform) !important;
-        text-decoration: var(--hr-subtitle-decoration) !important;
-        font-family: var(--hr-subtitle-font) !important;
-      }
-      :root {
-        --hr-subtitle-size: ${values.size} !important;
-        --hr-subtitle-weight: ${values.weight} !important;
-        --hr-subtitle-color: ${values.color} !important;
-        --hr-subtitle-style: ${values.style} !important;
-        --hr-subtitle-align: ${values.align} !important;
-        --hr-subtitle-transform: ${values.transform} !important;
-        --hr-subtitle-decoration: ${values.decoration} !important;
-        --hr-subtitle-font: ${values.fontFamily} !important;
-      }
-    `;
-
-    chrome.runtime.sendMessage({
-      type: "updateStyles",
-      key: "subtitle",
-      css: css,
-    });
-  }
 }
