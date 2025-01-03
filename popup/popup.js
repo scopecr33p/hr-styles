@@ -28,6 +28,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const secondaryFileInput = document.getElementById("secondaryFontFile");
   const primaryPreview = document.getElementById("primaryFontPreview");
   const secondaryPreview = document.getElementById("secondaryFontPreview");
+  const h1Size = document.getElementById("h1Size");
+  const h1Weight = document.getElementById("h1Weight");
+  const h1Color = document.getElementById("h1Color");
+  const h1Align = document.getElementById("h1Align");
+  const h1Transform = document.getElementById("h1Transform");
+  const h1Font = document.getElementById("h1Font");
+  const h1ItalicToggle = document.getElementById("h1ItalicToggle");
+  const h1UnderlineToggle = document.getElementById("h1UnderlineToggle");
+  const h1StrikeToggle = document.getElementById("h1StrikeToggle");
 
   // Load saved override state
   chrome.storage.local.get(["overrideAllBackgrounds"], function (result) {
@@ -81,6 +90,15 @@ document.addEventListener("DOMContentLoaded", function () {
           "textUnderline",
           "textStrike",
           "subtitleFont",
+          "h1Size",
+          "h1Weight",
+          "h1Color",
+          "h1Align",
+          "h1Transform",
+          "h1Font",
+          "h1Italic",
+          "h1Underline",
+          "h1Strike",
         ],
         resolve
       )
@@ -113,6 +131,15 @@ document.addEventListener("DOMContentLoaded", function () {
     if (localResult.subtitleTransform)
       subtitleTransform.value = localResult.subtitleTransform;
     if (localResult.subtitleFont) subtitleFont.value = localResult.subtitleFont;
+    if (localResult.h1Size) h1Size.value = localResult.h1Size;
+    if (localResult.h1Weight) h1Weight.value = localResult.h1Weight;
+    if (localResult.h1Color) h1Color.value = localResult.h1Color;
+    if (localResult.h1Align) h1Align.value = localResult.h1Align;
+    if (localResult.h1Transform) h1Transform.value = localResult.h1Transform;
+    if (localResult.h1Font) h1Font.value = localResult.h1Font;
+    if (localResult.h1Italic) h1ItalicToggle.classList.add("active");
+    if (localResult.h1Underline) h1UnderlineToggle.classList.add("active");
+    if (localResult.h1Strike) h1StrikeToggle.classList.add("active");
 
     // Set initial toggle states
     if (localResult.textItalic) italicToggle.classList.add("active");
@@ -259,6 +286,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  function updateFontDropdown() {
+    // Get current selected values before clearing
+    const currentSubtitleFont = subtitleFont.value;
+    const currentH1Font = h1Font.value;
+
+    // Clear existing options except the default one
+    while (subtitleFont.options.length > 1) subtitleFont.options.remove(1);
+    while (h1Font.options.length > 1) h1Font.options.remove(1);
+
+    // Add primary font option if available
+    if (primaryPreview.classList.contains("loaded")) {
+      subtitleFont.add(new Option("Primary Font", "primary"));
+      h1Font.add(new Option("Primary Font", "primary"));
+    }
+
+    // Add secondary font option if available
+    if (secondaryPreview.classList.contains("loaded")) {
+      subtitleFont.add(new Option("Secondary Font", "secondary"));
+      h1Font.add(new Option("Secondary Font", "secondary"));
+    }
+
+    // Restore selected values
+    if (currentSubtitleFont) subtitleFont.value = currentSubtitleFont;
+    if (currentH1Font) h1Font.value = currentH1Font;
+  }
+
   // Load existing font names and settings
   Promise.all([
     new Promise((resolve) =>
@@ -273,7 +326,7 @@ document.addEventListener("DOMContentLoaded", function () {
       )
     ),
     new Promise((resolve) =>
-      chrome.storage.sync.get(["subtitleFont"], resolve)
+      chrome.storage.local.get(["subtitleFont", "h1Font"], resolve)
     ),
   ]).then(([localResult, syncResult]) => {
     if (localResult.primaryFontName && localResult.primaryFont) {
@@ -284,12 +337,17 @@ document.addEventListener("DOMContentLoaded", function () {
       secondaryPreview.textContent = localResult.secondaryFontName;
       secondaryPreview.classList.add("loaded");
     }
+
+    // Update dropdowns first
+    updateFontDropdown();
+
+    // Then set the values
     if (syncResult.subtitleFont) {
       subtitleFont.value = syncResult.subtitleFont;
     }
-
-    // Update font dropdown
-    updateFontDropdown();
+    if (syncResult.h1Font) {
+      h1Font.value = syncResult.h1Font;
+    }
   });
 
   async function handleFontUpload(file, type, preview) {
@@ -447,42 +505,63 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  function updateFontDropdown() {
-    const subtitleFont = document.getElementById("subtitleFont");
+  function updateH1Styles() {
+    const validSize = Math.min(Math.max(parseInt(h1Size.value) || 24, 8), 64);
+    h1Size.value = validSize;
 
-    // Get both the current font selection and available fonts
-    chrome.storage.local.get(
-      ["primaryFontName", "secondaryFontName", "subtitleFont"],
-      (result) => {
-        const currentValue = result.subtitleFont || ""; // Get from storage instead of DOM
-
-        // Clear existing options except Default
-        while (subtitleFont.options.length > 1) {
-          subtitleFont.remove(1);
-        }
-
-        if (result.primaryFontName) {
-          const primaryOption = document.createElement("option");
-          primaryOption.value = "primary";
-          primaryOption.textContent = `Primary Font (${result.primaryFontName})`;
-          subtitleFont.appendChild(primaryOption);
-        }
-
-        if (result.secondaryFontName) {
-          const secondaryOption = document.createElement("option");
-          secondaryOption.value = "secondary";
-          secondaryOption.textContent = `Secondary Font (${result.secondaryFontName})`;
-          subtitleFont.appendChild(secondaryOption);
-        }
-
-        // Restore the previous selection if the option still exists
-        if (
-          currentValue &&
-          [...subtitleFont.options].some((opt) => opt.value === currentValue)
-        ) {
-          subtitleFont.value = currentValue;
-        }
+    chrome.storage.local.set(
+      {
+        h1Size: validSize,
+        h1Weight: h1Weight.value,
+        h1Color: h1Color.value,
+        h1Align: h1Align.value,
+        h1Transform: h1Transform.value,
+        h1Font: h1Font.value,
+      },
+      () => {
+        // Send message to update styles immediately
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              type: "updateTextStyles",
+            });
+          }
+        });
       }
     );
   }
+
+  // Add event listeners
+  h1Size.addEventListener("input", updateH1Styles);
+  h1Color.addEventListener("input", updateH1Styles);
+  h1Weight.addEventListener("change", updateH1Styles);
+  h1Align.addEventListener("change", updateH1Styles);
+  h1Transform.addEventListener("change", updateH1Styles);
+  h1Font.addEventListener("change", updateH1Styles);
+
+  function updateH1TextStyles() {
+    const styles = {
+      h1Italic: h1ItalicToggle.classList.contains("active"),
+      h1Underline: h1UnderlineToggle.classList.contains("active"),
+      h1Strike: h1StrikeToggle.classList.contains("active"),
+    };
+
+    chrome.storage.local.set(styles, () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: "updateTextStyles",
+          });
+        }
+      });
+    });
+  }
+
+  // Add toggle handlers for h1
+  [h1ItalicToggle, h1UnderlineToggle, h1StrikeToggle].forEach((button) => {
+    button.addEventListener("click", function () {
+      this.classList.toggle("active");
+      updateH1TextStyles();
+    });
+  });
 });

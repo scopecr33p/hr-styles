@@ -15,6 +15,12 @@ class TextCustomizationFeature {
         changes.textUnderline ||
         changes.textStrike ||
         changes.subtitleFont ||
+        changes.h1Size ||
+        changes.h1Weight ||
+        changes.h1Color ||
+        changes.h1Align ||
+        changes.h1Transform ||
+        changes.h1Font ||
         changes.primaryFont ||
         changes.secondaryFont
       ) {
@@ -40,6 +46,15 @@ class TextCustomizationFeature {
       "subtitleFont",
       "primaryFont",
       "secondaryFont",
+      "h1Size",
+      "h1Weight",
+      "h1Color",
+      "h1Align",
+      "h1Transform",
+      "h1Font",
+      "h1Italic",
+      "h1Underline",
+      "h1Strike",
     ]);
 
     // Only apply styles if they're explicitly set and not default
@@ -101,11 +116,59 @@ class TextCustomizationFeature {
             : "inherit"
         } !important;
       }
+      
+      h1 {
+        ${
+          result.h1Size
+            ? `font-size: ${Math.max(
+                8,
+                Math.min(parseInt(result.h1Size), 64)
+              )}px !important;`
+            : ""
+        }
+        ${
+          result.h1Weight && result.h1Weight !== ""
+            ? `font-weight: ${result.h1Weight} !important;`
+            : ""
+        }
+        ${result.h1Color ? `color: ${result.h1Color} !important;` : ""}
+        ${result.h1Align ? `text-align: ${result.h1Align} !important;` : ""}
+        ${
+          result.h1Transform
+            ? `text-transform: ${result.h1Transform} !important;`
+            : ""
+        }
+        ${
+          typeof result.h1Italic === "boolean"
+            ? `font-style: ${result.h1Italic ? "italic" : "normal"} !important;`
+            : ""
+        }
+        ${
+          typeof result.h1Underline === "boolean" ||
+          typeof result.h1Strike === "boolean"
+            ? `text-decoration: ${
+                [
+                  result.h1Underline ? "underline" : "",
+                  result.h1Strike ? "line-through" : "",
+                ]
+                  .filter((d) => d)
+                  .join(" ") || "none"
+              } !important;`
+            : ""
+        }
+        font-family: ${
+          result.h1Font === "primary" && result.primaryFont
+            ? '"HR-primary"'
+            : result.h1Font === "secondary" && result.secondaryFont
+            ? '"HR-secondary"'
+            : "inherit"
+        } !important;
+      }
     `;
 
     chrome.runtime.sendMessage({
       type: "updateStyles",
-      key: "subtitle",
+      key: "headings",
       css: css,
     });
   }

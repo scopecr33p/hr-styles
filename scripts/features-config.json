@@ -47,7 +47,8 @@
       "enabled": true,
       "urlPattern": "*://*.horsereality.com/*",
       "styles": {
-        "subtitle": [".subtitle"]
+        "subtitle": [".subtitle"],
+        "h1": ["h1"]
       },
       "variables": {
         "--hr-subtitle-size": "14px",
@@ -56,7 +57,14 @@
         "--hr-subtitle-style": "normal",
         "--hr-subtitle-align": "left",
         "--hr-subtitle-transform": "none",
-        "--hr-subtitle-decoration": "none"
+        "--hr-subtitle-decoration": "none",
+        "--hr-h1-size": "24px",
+        "--hr-h1-weight": "700",
+        "--hr-h1-color": "#333333",
+        "--hr-h1-style": "normal",
+        "--hr-h1-align": "left",
+        "--hr-h1-transform": "none",
+        "--hr-h1-decoration": "none"
       }
     },
     {

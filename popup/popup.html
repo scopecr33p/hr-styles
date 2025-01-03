@@ -204,6 +204,92 @@
 
         <div class="settings-group">
           <div class="header">
+            <h2>Heading Styles</h2>
+          </div>
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-title">H1 Text</div>
+              <div class="setting-description">
+                Customize heading appearance
+              </div>
+            </div>
+          </div>
+
+          <div class="text-customization">
+            <div class="text-customization-field">
+              <span class="text-customization-label">Size</span>
+              <input 
+                type="number" 
+                id="h1Size" 
+                min="8" 
+                max="64" 
+                value="24"
+                title="Size (px)"
+              />
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Weight</span>
+              <select id="h1Weight">
+                <option value="">Default</option>
+                <option value="400">Normal</option>
+                <option value="500">Medium</option>
+                <option value="600">Semi-Bold</option>
+                <option value="700">Bold</option>
+              </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Align</span>
+              <select id="h1Align">
+                <option value="">Default</option>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Transform</span>
+              <select id="h1Transform">
+                <option value="">Default</option>
+                <option value="none">Normal</option>
+                <option value="capitalize">Capitalize</option>
+                <option value="uppercase">Uppercase</option>
+                <option value="lowercase">Lowercase</option>
+                <option value="small-caps">Small Caps</option>
+              </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Color</span>
+              <input 
+                type="color" 
+                id="h1Color" 
+                value="#333333"
+              />
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Font</span>
+              <select id="h1Font">
+                <option value="">Default</option>
+              </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Style</span>
+              <div class="text-style-toggles">
+                <button type="button" id="h1ItalicToggle" class="style-toggle" title="Italic">
+                  <i>I</i>
+                </button>
+                <button type="button" id="h1UnderlineToggle" class="style-toggle" title="Underline">
+                  <u>U</u>
+                </button>
+                <button type="button" id="h1StrikeToggle" class="style-toggle" title="Strikethrough">
+                  S
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="header">
             <h2>Font Settings</h2>
           </div>
           <div class="setting-item">
