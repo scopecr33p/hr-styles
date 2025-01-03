@@ -60,6 +60,36 @@ document.addEventListener("DOMContentLoaded", function () {
     return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
   }
 
+  // Replace the individual element value settings with a function that uses the config defaults
+  function setElementDefaults(elementId, defaults) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    switch (element.type) {
+      case "number":
+        element.value = defaults.size || "";
+        break;
+      case "color":
+        element.value = defaults.color || "#333333";
+        break;
+      case "select-one":
+        element.value =
+          defaults[elementId.replace(/(subtitle|h1)/i, "").toLowerCase()] || "";
+        break;
+      default:
+        if (element.classList.contains("style-toggle")) {
+          const type = elementId.toLowerCase().includes("italic")
+            ? "italic"
+            : elementId.toLowerCase().includes("underline")
+            ? "underline"
+            : "strike";
+          if (defaults[type]) {
+            element.classList.add("active");
+          }
+        }
+    }
+  }
+
   // Load saved states
   Promise.all([
     // Load sync storage settings
@@ -76,6 +106,10 @@ document.addEventListener("DOMContentLoaded", function () {
         ],
         resolve
       )
+    ),
+    // Load config for defaults
+    fetch(chrome.runtime.getURL("scripts/features-config.json")).then((r) =>
+      r.json()
     ),
     // Load local storage settings
     new Promise((resolve) =>
@@ -103,48 +137,72 @@ document.addEventListener("DOMContentLoaded", function () {
         resolve
       )
     ),
-  ]).then(([syncResult, localResult]) => {
-    // Handle sync storage results
-    flipFoalsToggle.checked = syncResult.flipFoals || false;
-
+  ]).then(([syncResult, config, localResult]) => {
+    // Set initial values for nav and input backgrounds
     if (syncResult.navBackground) {
       navColorPicker.value = syncResult.navBackground;
     }
     if (syncResult.inputBackground) {
       inputColorPicker.value = syncResult.inputBackground;
     }
-    if (syncResult.navOpacity !== undefined) {
+    if (syncResult.navOpacity) {
       navOpacity.value = syncResult.navOpacity;
     }
-    if (syncResult.inputOpacity !== undefined) {
+    if (syncResult.inputOpacity) {
       inputOpacity.value = syncResult.inputOpacity;
     }
+    if (syncResult.flipFoals) {
+      flipFoalsToggle.checked = syncResult.flipFoals;
+    }
 
-    // Handle local storage results
-    if (localResult.subtitleSize) subtitleSize.value = localResult.subtitleSize;
-    if (localResult.subtitleWeight)
-      subtitleWeight.value = localResult.subtitleWeight;
-    if (localResult.subtitleColor)
-      subtitleColor.value = localResult.subtitleColor;
-    if (localResult.subtitleAlign)
-      subtitleAlign.value = localResult.subtitleAlign;
-    if (localResult.subtitleTransform)
-      subtitleTransform.value = localResult.subtitleTransform;
-    if (localResult.subtitleFont) subtitleFont.value = localResult.subtitleFont;
-    if (localResult.h1Size) h1Size.value = localResult.h1Size;
-    if (localResult.h1Weight) h1Weight.value = localResult.h1Weight;
-    if (localResult.h1Color) h1Color.value = localResult.h1Color;
-    if (localResult.h1Align) h1Align.value = localResult.h1Align;
-    if (localResult.h1Transform) h1Transform.value = localResult.h1Transform;
-    if (localResult.h1Font) h1Font.value = localResult.h1Font;
-    if (localResult.h1Italic) h1ItalicToggle.classList.add("active");
-    if (localResult.h1Underline) h1UnderlineToggle.classList.add("active");
-    if (localResult.h1Strike) h1StrikeToggle.classList.add("active");
+    // Get defaults from config
+    const { subtitle: subtitleDefaults, h1: h1Defaults } = config.features.find(
+      (f) => f.name === "textCustomization"
+    ).textElements;
 
-    // Set initial toggle states
-    if (localResult.textItalic) italicToggle.classList.add("active");
-    if (localResult.textUnderline) underlineToggle.classList.add("active");
-    if (localResult.textStrike) strikeToggle.classList.add("active");
+    // Set defaults for subtitle elements
+    const subtitleElements = [
+      "subtitleSize",
+      "subtitleWeight",
+      "subtitleColor",
+      "subtitleAlign",
+      "subtitleTransform",
+      "subtitleFont",
+      "italicToggle",
+      "underlineToggle",
+      "strikeToggle",
+    ];
+    subtitleElements.forEach((id) =>
+      setElementDefaults(id, subtitleDefaults.defaults)
+    );
+
+    // Set defaults for h1 elements
+    const h1Elements = [
+      "h1Size",
+      "h1Weight",
+      "h1Color",
+      "h1Align",
+      "h1Transform",
+      "h1Font",
+      "h1ItalicToggle",
+      "h1UnderlineToggle",
+      "h1StrikeToggle",
+    ];
+    h1Elements.forEach((id) => setElementDefaults(id, h1Defaults.defaults));
+
+    // Apply any saved values that override defaults
+    Object.entries(localResult).forEach(([key, value]) => {
+      const element =
+        document.getElementById(key) ||
+        document.getElementById(key.replace("text", ""));
+      if (element) {
+        if (element.classList.contains("style-toggle")) {
+          if (value) element.classList.add("active");
+        } else {
+          element.value = value;
+        }
+      }
+    });
   });
 
   // Load saved banner image if exists
@@ -564,4 +622,41 @@ document.addEventListener("DOMContentLoaded", function () {
       updateH1TextStyles();
     });
   });
+
+  // Helper function to create UI elements
+  function createTextCustomizationUI(elementName, container) {
+    const element = TextCustomizationFeature.elements.get(elementName);
+    if (!element) return;
+
+    // Create fields based on the element's properties
+    element.getStyleProperties().forEach((prop) => {
+      const field = createCustomizationField(elementName, prop);
+      container.appendChild(field);
+    });
+  }
+
+  // Add event listeners dynamically
+  function addTextElementListeners(elementName) {
+    const element = TextCustomizationFeature.elements.get(elementName);
+    if (!element) return;
+
+    element.getStyleProperties().forEach((prop) => {
+      const elementId = `${elementName}${prop
+        .charAt(0)
+        .toUpperCase()}${prop.slice(1)}`;
+      const input = document.getElementById(elementId);
+      if (!input) return;
+
+      if (prop === "italic" || prop === "underline" || prop === "strike") {
+        input.addEventListener("click", function () {
+          this.classList.toggle("active");
+          updateElementStyles(elementName);
+        });
+      } else {
+        input.addEventListener(prop === "color" ? "input" : "change", () => {
+          updateElementStyles(elementName);
+        });
+      }
+    });
+  }
 });

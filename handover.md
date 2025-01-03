@@ -258,3 +258,101 @@ Error Handling:
 - Invalid file type detection
 - Failed injection recovery
 - Cross-tab synchronization error handling
+
+### Text Customization Refactoring
+The text customization system was refactored to improve scalability and maintainability. Key improvements include:
+
+#### Architecture Changes
+- Introduced TextElement class for encapsulated text element handling
+- Moved from individual element management to a configuration-driven approach
+- Centralized storage key generation and style property management
+- Unified style application across all text elements
+
+#### Key Components
+1. TextElement Class:
+   - Handles individual text element configuration
+   - Manages style properties and storage keys
+   - Generates CSS based on applied styles
+   - Provides consistent interface for all text elements
+
+2. Configuration-Driven Setup:
+   - Text elements defined in features-config.json
+   - Each element specifies:
+     - Selector for targeting
+     - Default values for all properties
+     - Supported style properties
+
+3. Unified Storage Management:
+   - Consistent storage key generation
+   - Shared style property handling
+   - Centralized style application
+   - Real-time updates across elements
+
+#### Implementation Details
+1. Storage Key Generation:
+   - Format: `${elementName}${propertyName}`
+   - Example: "subtitleSize", "h1Color"
+   - Consistent across all text elements
+
+2. Style Properties:
+   - Standardized property set:
+     - size (8px-64px)
+     - weight
+     - color
+     - align
+     - transform
+     - font
+     - italic
+     - underline
+     - strike
+
+3. Default Management:
+   - Defaults defined in config
+   - Consistent fallback values
+   - Applied before user customizations
+
+4. Event Handling:
+   - Unified listener attachment
+   - Consistent update triggers
+   - Shared style application logic
+
+#### Benefits
+1. Scalability:
+   - Easy addition of new text elements
+   - Consistent handling across elements
+   - Reduced code duplication
+
+2. Maintainability:
+   - Centralized configuration
+   - Consistent property handling
+   - Clear separation of concerns
+
+3. Performance:
+   - Efficient style generation
+   - Optimized storage access
+   - Reduced redundant updates
+
+#### Code References
+- Text Customization Feature:
+```javascript:scripts/features/text-customization.js
+startLine: 1
+endLine: 68
+```
+<code_block_to_apply_changes_from>
+```javascript:popup/popup.js
+startLine: 63
+endLine: 91
+```
+- Style Application:
+```javascript:popup/popup.js
+startLine: 303
+endLine: 337
+```
+
+#### Migration Notes
+- Existing storage keys maintained for compatibility
+- No breaking changes to user settings
+- Seamless transition for existing customizations
+- Enhanced support for future text elements
+
+This refactoring provides a robust foundation for future text customization features while maintaining all existing functionality and user preferences.

@@ -21,6 +21,7 @@
     {
       "matches": ["*://*.horsereality.com/*"],
       "js": [
+        "scripts/features/text-element.js",
         "scripts/feature-manager.js",
         "scripts/features/style-manager.js",
         "scripts/features/foal-flip.js",
