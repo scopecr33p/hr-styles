@@ -1,0 +1,63 @@
+{
+  "features": [
+    {
+      "name": "styleCustomization",
+      "enabled": true,
+      "urlPattern": "*://*.horsereality.com/*",
+      "styles": {
+        "nav": [
+          "html body .side-nav",
+          "body#horses div.container",
+          "body#currency-exchange div.container",
+          "body#forum div.container",
+          "body#inventory div.container",
+          "body#foundation-breeder div.container",
+          "body#equistore div.container",
+          "body#wildlife-park div.container",
+          "body#search div.container"
+        ],
+        "input": [
+          "html body input:not([type=\"hidden\"]):not([name=\"edit_name\"])",
+          "html body textarea",
+          "html body select"
+        ],
+        "borderRadius": [".side-nav", ".button", "body#horses div.container"],
+        "transparent": ["html:not([data-v2]) .leftnav"]
+      },
+      "variables": {
+        "--hr-nav-background": "rgba(234, 240, 242, 1)",
+        "--hr-input-background": "rgba(197, 216, 222, 1)",
+        "--hr-border-radius": "8px",
+        "--hr-transparent-background": "transparent"
+      }
+    },
+    {
+      "name": "foalFlip",
+      "enabled": false,
+      "urlPattern": "https?://(?:www\\.|v2\\.)horsereality\\.com/horses/(?:stall/)?\\d+"
+    },
+    {
+      "name": "backgroundManager",
+      "enabled": true,
+      "urlPattern": "*://*.horsereality.com/horses/*",
+      "excludePattern": "*://*.horsereality.com/fitting-room*"
+    },
+    {
+      "name": "textCustomization",
+      "enabled": true,
+      "urlPattern": "*://*.horsereality.com/*",
+      "styles": {
+        "subtitle": [".subtitle"]
+      },
+      "variables": {
+        "--hr-subtitle-size": "12px",
+        "--hr-subtitle-weight": "400",
+        "--hr-subtitle-color": "#666666",
+        "--hr-subtitle-style": "normal",
+        "--hr-subtitle-align": "left",
+        "--hr-subtitle-transform": "none",
+        "--hr-subtitle-decoration": "none"
+      }
+    }
+  ]
+}

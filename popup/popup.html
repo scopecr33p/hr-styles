@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>HR Styles</title>
+    <link rel="stylesheet" type="text/css" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>HR Styles</h1>
+        <p class="subtitle">Customize your Horse Reality styles</p>
+      </div>
+      <div class="settings-group">
+        <div class="header">
+          <h2>Global Styles</h2>
+        </div>
+        <div class="setting-item">
+          <div class="setting-content">
+            <div class="setting-title">Flip Foals</div>
+            <div class="setting-description">
+              Mirror flip foal images on horse pages
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="flipFoals" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-content">
+            <div class="setting-title">Sidebar Nav Background</div>
+            <div class="setting-description">
+              Change background color of sidebar navigation
+            </div>
+          </div>
+          <div class="color-picker">
+            <input type="color" id="navBackground" value="#eaf0f2" />
+            <input
+              type="number"
+              id="navOpacity"
+              min="1"
+              max="100"
+              value="100"
+              title="Opacity (%)"
+            />
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="header">
+            <h2>Input Fields</h2>
+          </div>
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-title">Input Backgrounds</div>
+              <div class="setting-description">
+                Change background color of input fields
+              </div>
+            </div>
+            <div class="color-picker">
+              <input type="color" id="inputBackground" value="#c5d8de" />
+              <input
+                type="number"
+                id="inputOpacity"
+                min="1"
+                max="100"
+                value="100"
+                title="Opacity (%)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="header">
+            <h2>Background Images</h2>
+            <p class="subtitle">Replace background images on horse pages</p>
+          </div>
+            <div class="setting-item">
+              <div class="setting-content">
+                <div class="setting-title">Override All Backgrounds</div>
+                <div class="setting-description">
+                  When off, only replaces backgrounds on horses without custom
+                  backgrounds
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="overrideAllBackgrounds" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="image-upload-container">
+              <input
+                type="file"
+                id="bannerBackground"
+                accept="image/*"
+                class="file-input"
+              />
+              <label for="bannerBackground" class="upload-button"
+                >Choose Image</label
+              >
+              <button id="resetBannerBackground" class="reset-button">
+                Reset
+              </button>
+            </div>
+            <div
+            class="setting-item"
+            id="bannerPreviewContainer"
+            style="display: none"
+          >
+            <div class="image-preview">
+              <img id="bannerPreview" src="" alt="Banner preview" />
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="header">
+            <h2>Text Styles</h2>
+          </div>
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-title">Subtitle Text</div>
+              <div class="setting-description">
+                Customize subtitle appearance
+              </div>
+            </div>
+          </div>
+
+          <div class="text-customization">
+            <div class="text-customization-field">
+              <span class="text-customization-label">Size</span>
+              <input 
+                type="number" 
+                id="subtitleSize" 
+                min="8" 
+                max="64" 
+                value="12"
+                title="Size (px)"
+              />
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Weight</span>
+              <select id="subtitleWeight">
+                <option value="400">Normal</option>
+                <option value="500">Medium</option>
+                <option value="600">Semi-Bold</option>
+                <option value="700">Bold</option>
+              </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Style</span>
+              <div class="text-style-toggles">
+                <button type="button" id="italicToggle" class="style-toggle" title="Italic">
+                  <i>I</i>
+                </button>
+                <button type="button" id="underlineToggle" class="style-toggle" title="Underline">
+                  <u>U</u>
+                </button>
+                <button type="button" id="strikeToggle" class="style-toggle" title="Strikethrough">
+                  <s>S</s>
+                </button>
+              </div>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Align</span>
+              <select id="subtitleAlign">
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Transform</span>
+              <select id="subtitleTransform">
+                <option value="none">Normal</option>
+                <option value="capitalize">Capitalize</option>
+                <option value="uppercase">Uppercase</option>
+                <option value="lowercase">Lowercase</option>
+                <option value="small-caps">Small Caps</option>
+              </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Color</span>
+              <input 
+                type="color" 
+                id="subtitleColor" 
+                value="#666666"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
