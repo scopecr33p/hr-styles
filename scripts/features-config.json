@@ -50,14 +50,19 @@
         "subtitle": [".subtitle"]
       },
       "variables": {
-        "--hr-subtitle-size": "12px",
+        "--hr-subtitle-size": "14px",
         "--hr-subtitle-weight": "400",
-        "--hr-subtitle-color": "#666666",
+        "--hr-subtitle-color": "#333333",
         "--hr-subtitle-style": "normal",
         "--hr-subtitle-align": "left",
         "--hr-subtitle-transform": "none",
         "--hr-subtitle-decoration": "none"
       }
+    },
+    {
+      "name": "fontManager",
+      "enabled": true,
+      "urlPattern": "*://*.horsereality.com/*"
     }
   ]
 }

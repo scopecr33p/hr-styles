@@ -7,14 +7,20 @@ Features include foal image flipping, style customization, and background manage
 ## Project Structure
 - `/scripts` - Core extension scripts
   - `/features` - Individual feature implementations
+    - `text-customization.js` - Text styling management
+    - `font-manager.js` - Font handling and injection
+    - `style-manager.js` - Global style customization
+    - `foal-flip.js` - Foal image transformation
+    - `background-manager.js` - Horse background management
   - `feature-manager.js` - Central feature management system
   - `background.js` - Service worker for style management
-  - `content.js` - Content script initialization
+  - `content.js` - Content script initialization and message handling
+  - `features-config.json` - Feature configuration and settings
 - `/popup` - Extension UI components
   - `popup.html` - Main extension interface
   - `popup.css` - UI styling
   - `popup.js` - Popup interaction logic
-- `/test` - Testing utilities
+  - `font-handler.js` - Font upload and preview handling
 
 ## Features
 
@@ -158,3 +164,49 @@ Implementation Flow:
 - Feature-specific enable/disable controls
 - Consistent UI component structure
 - Standardized message passing system
+
+### Storage Management Strategy
+- Dual storage approach:
+  - chrome.storage.sync: For lightweight user preferences
+    - Navigation colors and opacity
+    - Input field styles
+    - Foal flip settings
+    - Global UI preferences
+  - chrome.storage.local: For larger data and font-related settings
+    - Custom fonts (Base64 encoded)
+    - Font names and metadata
+    - Text customization settings
+    - Banner backgrounds
+    - Style-specific preferences
+
+### Font Management System
+Specific functionality:
+- Supports multiple font formats (.ttf, .otf, .woff, .woff2)
+- Dual font system with primary and secondary fonts
+- Real-time font preview and application
+- Font persistence across sessions
+- Automatic font injection into pages
+
+Technical Implementation:
+- Base64 encoding for font storage
+- Asynchronous font loading and application
+- Font face injection using dynamic style elements
+- Unique font family naming convention ("HR-primary", "HR-secondary")
+- Error handling for invalid font files
+- Loading state management during upload
+- Font preview system with visual feedback
+
+Implementation Flow:
+- Font selection through file input
+- Validation of font file type and size
+- Conversion to Base64 using FileReader
+- Storage in chrome.storage.local
+- Dynamic @font-face rule injection
+- Real-time application across active tabs
+- Preview update with loading states
+
+Integration with Text Customization:
+- Font family selection in text styling
+- Seamless switching between custom fonts
+- Fallback to system fonts when custom fonts unavailable
+- Consistent font application across all styled elements

@@ -4,16 +4,21 @@
 
   // Function to initialize features based on URL
   const initializeFeatures = async () => {
-    await featureManager.initialize();
+    // Initialize font manager first
+    if (typeof FontManagerFeature !== "undefined") {
+      const fontFeature = await FontManagerFeature.init();
+      await fontFeature.apply();
+    }
+
+    // Then initialize text customization
+    if (typeof TextCustomizationFeature !== "undefined") {
+      const textFeature = await TextCustomizationFeature.init();
+      await textFeature.apply();
+    }
 
     // Initialize style customization
     if (typeof StyleCustomizationFeature !== "undefined") {
       StyleCustomizationFeature.init();
-    }
-
-    // Initialize text customization
-    if (typeof TextCustomizationFeature !== "undefined") {
-      TextCustomizationFeature.init();
     }
 
     // Initialize features only if they should be applied
@@ -35,6 +40,8 @@
         backgroundFeature.apply(true);
       }
     }
+
+    await featureManager.initialize();
   };
 
   // Run initialization
@@ -43,4 +50,29 @@
   } else {
     initializeFeatures();
   }
+
+  // Add message listener for font updates
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "updateFont") {
+      try {
+        FontManagerFeature.injectFontFace(message.fontType, message.fontData);
+        // Reapply text styles after font injection
+        TextCustomizationFeature.loadAndApplyStyles();
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error("Font update error:", error);
+        sendResponse({ success: false, error: error.message });
+      }
+    }
+    return true;
+  });
+
+  // Add message listener for text styles
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "updateTextStyles") {
+      TextCustomizationFeature.loadAndApplyStyles();
+      sendResponse({ success: true });
+    }
+    return true;
+  });
 })();

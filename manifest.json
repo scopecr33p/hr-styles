@@ -4,7 +4,12 @@
   "version": "1.0",
   "description": "Customize Horse Reality styles",
   "permissions": ["storage", "activeTab", "scripting", "tabs"],
-  "host_permissions": ["*://*.horsereality.com/*"],
+  "host_permissions": [
+    "*://*.horsereality.com/*",
+    "https://www.googleapis.com/*",
+    "https://fonts.googleapis.com/*",
+    "https://fonts.gstatic.com/*"
+  ],
   "action": {
     "default_popup": "popup/popup.html"
   },
@@ -20,8 +25,9 @@
         "scripts/features/style-manager.js",
         "scripts/features/foal-flip.js",
         "scripts/features/background-manager.js",
-        "scripts/content.js",
-        "scripts/features/text-customization.js"
+        "scripts/features/font-manager.js",
+        "scripts/features/text-customization.js",
+        "scripts/content.js"
       ],
       "run_at": "document_start"
     }
