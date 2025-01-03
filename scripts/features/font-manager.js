@@ -34,6 +34,14 @@ class FontManagerFeature {
     const styleId = `hr-font-${name}`;
     let styleElement = document.getElementById(styleId);
 
+    // Add preload link
+    const preloadLink = document.createElement("link");
+    preloadLink.rel = "preload";
+    preloadLink.as = "font";
+    preloadLink.href = fontData;
+    preloadLink.crossOrigin = "anonymous";
+    document.head.appendChild(preloadLink);
+
     if (!styleElement) {
       styleElement = document.createElement("style");
       styleElement.id = styleId;
@@ -44,6 +52,7 @@ class FontManagerFeature {
         @font-face {
           font-family: "HR-${name}";
           src: url(${fontData}) format("woff2");
+          font-display: swap;
         }
       `;
   }

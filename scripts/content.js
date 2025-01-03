@@ -4,6 +4,20 @@
 
   // Function to initialize features based on URL
   const initializeFeatures = async () => {
+    // Preload fonts immediately
+    if (typeof FontManagerFeature !== "undefined") {
+      const fonts = await chrome.storage.local.get([
+        "primaryFont",
+        "secondaryFont",
+      ]);
+      if (fonts.primaryFont) {
+        FontManagerFeature.injectFontFace("primary", fonts.primaryFont);
+      }
+      if (fonts.secondaryFont) {
+        FontManagerFeature.injectFontFace("secondary", fonts.secondaryFont);
+      }
+    }
+
     // Initialize font manager first
     if (typeof FontManagerFeature !== "undefined") {
       const fontFeature = await FontManagerFeature.init();

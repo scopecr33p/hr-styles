@@ -186,6 +186,7 @@ Specific functionality:
 - Real-time font preview and application
 - Font persistence across sessions
 - Automatic font injection into pages
+- Font preloading and caching system
 
 Technical Implementation:
 - Base64 encoding for font storage
@@ -196,12 +197,21 @@ Technical Implementation:
 - Loading state management during upload
 - Font preview system with visual feedback
 
+Storage and Caching Strategy:
+- Background service worker maintains font cache using Map
+- Fonts stored in chrome.storage.local for persistence
+- Font styles injected before other CSS for performance
+- Preload resource hints for faster font loading
+- font-display: swap for better loading behavior
+- Centralized font injection through background script
+
 Implementation Flow:
 - Font selection through file input
 - Validation of font file type and size
 - Conversion to Base64 using FileReader
 - Storage in chrome.storage.local
-- Dynamic @font-face rule injection
+- Cache update in background service worker
+- Dynamic @font-face rule injection with preload
 - Real-time application across active tabs
 - Preview update with loading states
 
@@ -210,3 +220,41 @@ Integration with Text Customization:
 - Seamless switching between custom fonts
 - Fallback to system fonts when custom fonts unavailable
 - Consistent font application across all styled elements
+
+### Storage and Caching Architecture
+Global Storage Strategy:
+- chrome.storage.sync:
+  - Lightweight preferences (colors, toggles, etc)
+  - UI state and settings
+  - Feature enable/disable states
+- chrome.storage.local:
+  - Font data (Base64 encoded)
+  - Background images
+  - Large binary assets
+  - Feature-specific data
+
+Caching System:
+- Background Service Worker:
+  - Maintains style cache for quick injection
+  - Caches compiled CSS
+  - Stores font data in memory
+  - Handles style updates across tabs
+- Content Script:
+  - Preloads fonts on initialization
+  - Manages feature-specific caches
+  - Handles dynamic content updates
+
+Performance Optimizations:
+- Font preloading using resource hints
+- Prioritized style injection order
+- Memory-efficient caching using Maps
+- Asynchronous style compilation
+- Real-time style updates without page reload
+- Efficient storage listener management
+
+Error Handling:
+- Graceful fallbacks for missing fonts
+- Storage quota management
+- Invalid file type detection
+- Failed injection recovery
+- Cross-tab synchronization error handling

@@ -5,6 +5,9 @@ let styleCache = {
   features: {},
 };
 
+// Cache for fonts
+let fontCache = new Map();
+
 // Compile all styles from config
 async function compileStyles() {
   const response = await fetch(
@@ -48,6 +51,29 @@ async function compileStyles() {
 // Inject styles into tab
 async function injectStyles(tabId) {
   try {
+    // Ensure fonts are cached
+    await cacheFonts();
+
+    // Inject font styles first
+    if (fontCache.size > 0) {
+      const fontStyles = Array.from(fontCache.entries())
+        .map(
+          ([name, data]) => `
+          @font-face {
+            font-family: "HR-${name}";
+            src: url(${data}) format("woff2");
+            font-display: swap;
+          }
+        `
+        )
+        .join("\n");
+
+      await chrome.scripting.insertCSS({
+        target: { tabId },
+        css: fontStyles,
+      });
+    }
+
     // Ensure base styles are compiled
     if (!styleCache.base) {
       await compileStyles();
@@ -98,3 +124,17 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     injectStyles(tabId);
   }
 });
+
+async function cacheFonts() {
+  const fonts = await chrome.storage.local.get([
+    "primaryFont",
+    "secondaryFont",
+  ]);
+
+  if (fonts.primaryFont) {
+    fontCache.set("primary", fonts.primaryFont);
+  }
+  if (fonts.secondaryFont) {
+    fontCache.set("secondary", fonts.secondaryFont);
+  }
+}
