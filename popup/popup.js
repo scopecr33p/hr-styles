@@ -287,6 +287,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (syncResult.subtitleFont) {
       subtitleFont.value = syncResult.subtitleFont;
     }
+
+    // Update font dropdown
+    updateFontDropdown();
   });
 
   async function handleFontUpload(file, type, preview) {
@@ -339,11 +342,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   primaryFileInput.addEventListener("change", (e) => {
-    handleFontUpload(e.target.files[0], "primary", primaryPreview);
+    handleFontUpload(e.target.files[0], "primary", primaryPreview).then(() => {
+      updateFontDropdown();
+    });
   });
 
   secondaryFileInput.addEventListener("change", (e) => {
-    handleFontUpload(e.target.files[0], "secondary", secondaryPreview);
+    handleFontUpload(e.target.files[0], "secondary", secondaryPreview).then(
+      () => {
+        updateFontDropdown();
+      }
+    );
   });
 
   subtitleFont.addEventListener("change", function () {
@@ -437,4 +446,43 @@ document.addEventListener("DOMContentLoaded", function () {
       modal.style.display = "none";
     }
   });
+
+  function updateFontDropdown() {
+    const subtitleFont = document.getElementById("subtitleFont");
+
+    // Get both the current font selection and available fonts
+    chrome.storage.local.get(
+      ["primaryFontName", "secondaryFontName", "subtitleFont"],
+      (result) => {
+        const currentValue = result.subtitleFont || ""; // Get from storage instead of DOM
+
+        // Clear existing options except Default
+        while (subtitleFont.options.length > 1) {
+          subtitleFont.remove(1);
+        }
+
+        if (result.primaryFontName) {
+          const primaryOption = document.createElement("option");
+          primaryOption.value = "primary";
+          primaryOption.textContent = `Primary Font (${result.primaryFontName})`;
+          subtitleFont.appendChild(primaryOption);
+        }
+
+        if (result.secondaryFontName) {
+          const secondaryOption = document.createElement("option");
+          secondaryOption.value = "secondary";
+          secondaryOption.textContent = `Secondary Font (${result.secondaryFontName})`;
+          subtitleFont.appendChild(secondaryOption);
+        }
+
+        // Restore the previous selection if the option still exists
+        if (
+          currentValue &&
+          [...subtitleFont.options].some((opt) => opt.value === currentValue)
+        ) {
+          subtitleFont.value = currentValue;
+        }
+      }
+    );
+  }
 });

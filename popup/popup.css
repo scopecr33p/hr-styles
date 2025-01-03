@@ -37,13 +37,17 @@ body {
     background: white;
     border-radius: 8px;
     margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .setting-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 0;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .setting-content {
@@ -331,6 +335,8 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .font-file-input {
@@ -339,6 +345,7 @@ input[type="number"] {
   border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .font-preview {
@@ -407,4 +414,10 @@ input[type="number"] {
 .modal-buttons .cancel {
   background-color: #6c757d;
   color: white;
+}
+
+.settings-group:has(.font-upload-container) .setting-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
 }
