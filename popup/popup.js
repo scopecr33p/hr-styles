@@ -1,3 +1,12 @@
+const TEXT_SIZE_CONFIG = {
+  min: 8,
+  max: 64,
+  defaults: {
+    subtitle: 14,
+    h1: 24,
+  },
+};
+
 document.addEventListener("DOMContentLoaded", function () {
   const flipFoalsToggle = document.getElementById("flipFoals");
   const navColorPicker = document.getElementById("navBackground");
@@ -37,6 +46,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const h1ItalicToggle = document.getElementById("h1ItalicToggle");
   const h1UnderlineToggle = document.getElementById("h1UnderlineToggle");
   const h1StrikeToggle = document.getElementById("h1StrikeToggle");
+  const topNavColorPicker = document.getElementById("topNavBackground");
+  const topNavOpacity = document.getElementById("topNavOpacity");
+  const topNavIconsGrayscale = document.getElementById("topNavIconsGrayscale");
 
   // Load saved override state
   chrome.storage.local.get(["overrideAllBackgrounds"], function (result) {
@@ -101,8 +113,9 @@ document.addEventListener("DOMContentLoaded", function () {
           "inputBackground",
           "navOpacity",
           "inputOpacity",
-          "navBackgroundRgba",
-          "inputBackgroundRgba",
+          "topNavBackground",
+          "topNavOpacity",
+          "topNavBackgroundRgba",
         ],
         resolve
       )
@@ -203,6 +216,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     });
+
+    // Add top nav initialization here
+    if (syncResult.topNavBackground) {
+      topNavColorPicker.value = syncResult.topNavBackground;
+    }
+    if (syncResult.topNavOpacity) {
+      topNavOpacity.value = syncResult.topNavOpacity;
+    }
   });
 
   // Load saved banner image if exists
@@ -302,14 +323,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle subtitle style changes
   function updateSubtitleStyles() {
-    const validSize = Math.min(
-      Math.max(parseInt(subtitleSize.value) || 12, 8),
-      64
-    );
-    subtitleSize.value = validSize;
+    if (document.activeElement === subtitleSize) {
+      const validSize = validateTextSize(
+        subtitleSize.value,
+        TEXT_SIZE_CONFIG.defaults.subtitle
+      );
+      subtitleSize.value = validSize;
+    }
 
     chrome.storage.local.set({
-      subtitleSize: validSize,
+      subtitleSize: subtitleSize.value,
       subtitleWeight: subtitleWeight.value,
       subtitleColor: subtitleColor.value,
       subtitleAlign: subtitleAlign.value,
@@ -319,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Update event listeners
-  subtitleSize.addEventListener("input", updateSubtitleStyles);
+  subtitleSize.addEventListener("change", updateSubtitleStyles);
   subtitleColor.addEventListener("input", updateSubtitleStyles);
   subtitleWeight.addEventListener("change", updateSubtitleStyles);
   subtitleAlign.addEventListener("change", updateSubtitleStyles);
@@ -520,6 +543,8 @@ document.addEventListener("DOMContentLoaded", function () {
     navOpacity.value = "100";
     inputOpacity.value = "100";
     overrideToggle.checked = false;
+    topNavColorPicker.value = "#081b28";
+    topNavOpacity.value = "100";
 
     // Reset text customization to website defaults
     subtitleSize.value = "14";
@@ -544,6 +569,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateInputBackground();
     updateSubtitleStyles();
     updateTextStyles();
+    updateTopNavBackground();
 
     // Close modal
     modal.style.display = "none";
@@ -564,12 +590,17 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function updateH1Styles() {
-    const validSize = Math.min(Math.max(parseInt(h1Size.value) || 24, 8), 64);
-    h1Size.value = validSize;
+    if (document.activeElement === h1Size) {
+      const validSize = validateTextSize(
+        h1Size.value,
+        TEXT_SIZE_CONFIG.defaults.h1
+      );
+      h1Size.value = validSize;
+    }
 
     chrome.storage.local.set(
       {
-        h1Size: validSize,
+        h1Size: h1Size.value,
         h1Weight: h1Weight.value,
         h1Color: h1Color.value,
         h1Align: h1Align.value,
@@ -577,7 +608,6 @@ document.addEventListener("DOMContentLoaded", function () {
         h1Font: h1Font.value,
       },
       () => {
-        // Send message to update styles immediately
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           if (tabs[0]) {
             chrome.tabs.sendMessage(tabs[0].id, {
@@ -590,7 +620,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Add event listeners
-  h1Size.addEventListener("input", updateH1Styles);
+  h1Size.addEventListener("change", updateH1Styles);
   h1Color.addEventListener("input", updateH1Styles);
   h1Weight.addEventListener("change", updateH1Styles);
   h1Align.addEventListener("change", updateH1Styles);
@@ -658,5 +688,67 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     });
+  }
+
+  // Add this function with the other update functions
+  function updateTopNavBackground() {
+    const rgba = hexToRgba(topNavColorPicker.value, topNavOpacity.value);
+    chrome.storage.sync.set({
+      topNavBackground: topNavColorPicker.value,
+      topNavOpacity: topNavOpacity.value,
+      topNavBackgroundRgba: rgba,
+    });
+  }
+
+  // Add these event listeners with the other listeners
+  topNavColorPicker.addEventListener("change", updateTopNavBackground);
+  topNavOpacity.addEventListener("input", updateTopNavBackground);
+
+  function validateTextSize(value, defaultValue) {
+    const size = parseInt(value) || defaultValue;
+    return Math.min(Math.max(size, TEXT_SIZE_CONFIG.min), TEXT_SIZE_CONFIG.max);
+  }
+
+  // Add blur event listeners for size inputs
+  subtitleSize.addEventListener("blur", function () {
+    const validSize = validateTextSize(
+      this.value,
+      TEXT_SIZE_CONFIG.defaults.subtitle
+    );
+    this.value = validSize;
+    updateSubtitleStyles();
+  });
+
+  h1Size.addEventListener("blur", function () {
+    const validSize = validateTextSize(
+      this.value,
+      TEXT_SIZE_CONFIG.defaults.h1
+    );
+    this.value = validSize;
+    updateH1Styles();
+  });
+
+  // Load saved state
+  chrome.storage.sync.get(["topNavIconsGrayscale"], function (result) {
+    topNavIconsGrayscale.checked = result.topNavIconsGrayscale || false;
+  });
+
+  // Handle toggle
+  topNavIconsGrayscale.addEventListener("change", function () {
+    chrome.storage.sync.set(
+      {
+        topNavIconsGrayscale: this.checked,
+      },
+      () => {
+        updateTopNavIcons();
+      }
+    );
+  });
+
+  function updateTopNavIcons() {
+    const filterValue = topNavIconsGrayscale.checked
+      ? "grayscale(100%)"
+      : "none";
+    StyleCustomizationFeature.updateCustomStyle("topNavIcons", filterValue);
   }
 });

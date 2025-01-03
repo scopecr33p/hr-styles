@@ -53,8 +53,18 @@ Implementation Strategy:
 Currently Supports:
 - Navigation background color/opacity
 - Input field background color/opacity
-- Border radius customization
-- Transparent background options
+- Top navigation background color/opacity
+- Top navigation icons grayscale toggle
+  - Applies grayscale filter to icons in both v2 and non-v2 navigation bars
+  - Uses CSS filters for consistent cross-browser support
+  - Real-time toggle without page reload
+  - Persists settings across sessions
+
+Technical Implementation:
+- Direct CSS filter application
+- No background variable interference
+- Webkit prefix for broader compatibility
+- Selective targeting of icon24 class and header menu icons
 
 ### Text Customization
 Configuration-driven text styling system.
@@ -114,7 +124,7 @@ Technical details:
 - Uses chrome.storage.local for image storage (Base64)
 - Implements selective background replacement logic
 - Maintains consistent styling:
-  - Max height of 650px for containers
+  - Max height of 600px for containers
   - object-fit: cover for proper image scaling
   - Consistent positioning and dimensions
 - Image handling:

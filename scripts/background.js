@@ -14,34 +14,26 @@ async function compileStyles() {
     chrome.runtime.getURL("scripts/features-config.json")
   );
   const config = await response.json();
-
-  // Compile base styles
-  let baseCSS = "";
   const styleFeature = config.features.find(
     (f) => f.name === "styleCustomization"
   );
 
-  // Root variables
+  let baseCSS = "";
+
+  // Add variables
   baseCSS += ":root {";
   Object.entries(styleFeature.variables).forEach(([key, value]) => {
     baseCSS += `${key}:${value};`;
   });
   baseCSS += "}";
 
-  // Selector styles
-  Object.entries(styleFeature.styles).forEach(([group, selectors]) => {
-    baseCSS += `${selectors.join(",")} {`;
-    const properties = Object.keys(styleFeature.variables)
-      .filter((key) => key.includes(group))
-      .map((varName) => {
-        const prop = varName
-          .replace(`--hr-${group}-`, "")
-          .replace(/([A-Z])/g, "-$1")
-          .toLowerCase();
-        return `${prop}:var(${varName}) !important;`;
-      });
-    baseCSS += properties.join("");
-    baseCSS += "}";
+  // Add selectors
+  Object.entries(styleFeature.styles).forEach(([type, selectors]) => {
+    if (Array.isArray(selectors)) {
+      baseCSS += `${selectors.join(
+        ","
+      )} { background: var(--hr-${type}-background) !important; }`;
+    }
   });
 
   styleCache.base = baseCSS;
@@ -51,6 +43,20 @@ async function compileStyles() {
 // Inject styles into tab
 async function injectStyles(tabId) {
   try {
+    // Check if this is a v2 page
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    const isV2 = tab.url?.includes("v2.horsereality.com");
+
+    // Inject version-specific styles
+    if (isV2) {
+      await injectV2Styles(tabId);
+    } else {
+      await injectNonV2Styles(tabId);
+    }
+
     // Ensure fonts are cached
     await cacheFonts();
 
@@ -117,11 +123,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Initial style injection for new tabs
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (
-    changeInfo.status === "loading" &&
-    tab.url?.match(/^https?:\/\/.*?horsereality\.com/)
-  ) {
-    injectStyles(tabId);
+  if (changeInfo.status === "loading" && tab.url) {
+    console.log("URL being checked:", tab.url);
+
+    if (tab.url.includes("v2.horsereality.com")) {
+      console.log("V2 page detected, injecting styles");
+      injectV2Styles(tabId);
+    } else if (tab.url.match(/^https?:\/\/(www\.)?horsereality\.com/)) {
+      console.log("Non-V2 page detected, injecting styles");
+      injectNonV2Styles(tabId);
+    }
+
+    if (tab.url.match(/^https?:\/\/(www\.|v2\.)?horsereality\.com/)) {
+      injectStyles(tabId);
+    }
   }
 });
 
@@ -136,5 +151,45 @@ async function cacheFonts() {
   }
   if (fonts.secondaryFont) {
     fontCache.set("secondary", fonts.secondaryFont);
+  }
+}
+
+// Add after compileStyles function
+async function injectV2Styles(tabId) {
+  const v2CSS = `
+    body#horses.background div.container,
+    #horses > div.container {
+      display: flex !important;
+      background: transparent !important;
+      pointer-events: auto !important;
+    }
+  `;
+
+  try {
+    await chrome.scripting.insertCSS({
+      target: { tabId },
+      css: v2CSS,
+    });
+  } catch (error) {
+    console.error("V2 style injection failed:", error);
+  }
+}
+
+async function injectNonV2Styles(tabId) {
+  const nonV2CSS = `
+    body div.container {
+      display: flex !important;
+      background: transparent !important;
+      pointer-events: auto !important;
+    }
+  `;
+
+  try {
+    await chrome.scripting.insertCSS({
+      target: { tabId },
+      css: nonV2CSS,
+    });
+  } catch (error) {
+    console.error("Non-V2 style injection failed:", error);
   }
 }

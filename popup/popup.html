@@ -46,6 +46,37 @@
             />
           </div>
         </div>
+        <div class="setting-item">
+          <div class="setting-content">
+            <div class="setting-title">Top Nav Background</div>
+            <div class="setting-description">
+              Change background color of top navigation
+            </div>
+          </div>
+          <div class="color-picker">
+            <input type="color" id="topNavBackground" value="#081b28" />
+            <input
+              type="number"
+              id="topNavOpacity"
+              min="1"
+              max="100"
+              value="100"
+              title="Opacity (%)"
+            />
+          </div>
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-title">Top Nav Icons</div>
+              <div class="setting-description">
+                Apply grayscale filter to navigation icons
+              </div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="topNavIconsGrayscale" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
 
         <div class="settings-group">
           <div class="header">
@@ -133,13 +164,12 @@
             <div class="text-customization-field">
               <span class="text-customization-label">Size</span>
               <input 
-                type="number" 
-                id="subtitleSize" 
-                min="8" 
-                max="64" 
-                value="14"
-                title="Size (px)"
-              />
+              type="number" 
+              id="subtitleSize" 
+              data-text-type="subtitle"
+              value="14"
+              title="Size (px)"
+            />
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Weight</span>
@@ -150,6 +180,14 @@
                 <option value="600">Semi-Bold</option>
                 <option value="700">Bold</option>
               </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Color</span>
+              <input 
+                type="color" 
+                id="subtitleColor" 
+                value="#333333"
+              />
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Style</span>
@@ -186,15 +224,7 @@
               </select>
             </div>
             <div class="text-customization-field">
-              <span class="text-customization-label">Color</span>
-              <input 
-                type="color" 
-                id="subtitleColor" 
-                value="#333333"
-              />
-            </div>
-            <div class="text-customization-field">
-              <span class="text-customization-label">Font</span>
+              <span class="text-customization-label">Typeface</span>
               <select id="subtitleFont">
                 <option value="">Default</option>
               </select>
@@ -219,13 +249,12 @@
             <div class="text-customization-field">
               <span class="text-customization-label">Size</span>
               <input 
-                type="number" 
-                id="h1Size" 
-                min="8" 
-                max="64" 
-                value="24"
-                title="Size (px)"
-              />
+              type="number" 
+              id="h1Size" 
+              data-text-type="h1"
+              value="24"
+              title="Size (px)"
+            />
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Weight</span>
@@ -236,6 +265,28 @@
                 <option value="600">Semi-Bold</option>
                 <option value="700">Bold</option>
               </select>
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Color</span>
+              <input 
+                type="color" 
+                id="h1Color" 
+                value="#333333"
+              />
+            </div>
+            <div class="text-customization-field">
+              <span class="text-customization-label">Style</span>
+              <div class="text-style-toggles">
+                <button type="button" id="h1ItalicToggle" class="style-toggle" title="Italic">
+                  <i>I</i>
+                </button>
+                <button type="button" id="h1UnderlineToggle" class="style-toggle" title="Underline">
+                  <u>U</u>
+                </button>
+                <button type="button" id="h1StrikeToggle" class="style-toggle" title="Strikethrough">
+                  S
+                </button>
+              </div>
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Align</span>
@@ -258,39 +309,18 @@
               </select>
             </div>
             <div class="text-customization-field">
-              <span class="text-customization-label">Color</span>
-              <input 
-                type="color" 
-                id="h1Color" 
-                value="#333333"
-              />
-            </div>
-            <div class="text-customization-field">
-              <span class="text-customization-label">Font</span>
+              <span class="text-customization-label">Typeface</span>
               <select id="h1Font">
                 <option value="">Default</option>
               </select>
-            </div>
-            <div class="text-customization-field">
-              <span class="text-customization-label">Style</span>
-              <div class="text-style-toggles">
-                <button type="button" id="h1ItalicToggle" class="style-toggle" title="Italic">
-                  <i>I</i>
-                </button>
-                <button type="button" id="h1UnderlineToggle" class="style-toggle" title="Underline">
-                  <u>U</u>
-                </button>
-                <button type="button" id="h1StrikeToggle" class="style-toggle" title="Strikethrough">
-                  S
-                </button>
-              </div>
             </div>
           </div>
         </div>
 
         <div class="settings-group">
           <div class="header">
-            <h2>Font Settings</h2>
+            <h2>Typography Settings</h2>
+            <p class="subtitle">Upload up to two custom typefaces</p>
           </div>
           <div class="setting-item">
             <div class="setting-content">

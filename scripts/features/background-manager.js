@@ -47,15 +47,38 @@ class BackgroundManagerFeature {
 
   static hasCustomBackground() {
     const bannerContainer = document.querySelector(
-      '.horse_banner[class*="horse_banner"] > div[style*="position: relative"][style*="width: 960px"]'
+      'div[class^="horse_banner"] > div[style*="position: relative"][style*="width: 960px"]'
     );
 
     if (bannerContainer) {
       const bannerImg = bannerContainer.querySelector("img");
       // Check if there's an existing image that's not one we created
-      return bannerImg && !bannerImg.dataset.hrStyles;
+      if (bannerImg && !bannerImg.dataset.hrStyles) {
+        // Apply special styling for existing backgrounds
+        BackgroundManagerFeature.applyExistingImageStyles(
+          bannerImg,
+          bannerContainer
+        );
+        return true;
+      }
     }
     return false;
+  }
+
+  static applyExistingImageStyles(imgElement, containerElement) {
+    // Style the parent horse_banner div
+    const banner = containerElement.parentElement;
+    if (banner) {
+      banner.style.cssText = "overflow: hidden;";
+    }
+
+    // Style the container div that holds the image
+    containerElement.style.cssText =
+      "position: relative; width: 960px; top: -50px; overflow: hidden;";
+
+    // Style the image itself
+    imgElement.style.cssText =
+      "width: 100%; height: 100%; object-fit: cover; object-position: top;";
   }
 
   static applyImageStyles(imgElement, containerElement) {
@@ -67,7 +90,13 @@ class BackgroundManagerFeature {
 
     // Apply styles to the container
     containerElement.style.cssText =
-      "position: relative; top: -50px; width: 960px; height: 650px; overflow: hidden; pointer-events: auto;";
+      "position: relative; width: 960px; height: 600px; overflow: hidden; pointer-events: auto;";
+
+    // Fix the parent container
+    const banner = containerElement.parentElement;
+    if (banner) {
+      banner.style.cssText = "pointer-events: auto;";
+    }
   }
 
   static updateBannerBackground(base64Image, overrideAll = false) {
