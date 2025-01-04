@@ -2,50 +2,58 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    color: #333;
-    min-width: 300px;
+    background: var(--background);
+    color: var(--forest);
+    min-width: 400px;
+    max-width: 400px;
+    height: 500px;
+    overflow: hidden;
 }
 
 .container {
-    padding: 16px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 
-.header h1 {
-    margin: 0;
-    padding: 0;
+h1 {
+    margin: 0px;
+    padding: 0px;
     font-size: 18px;
-    color: #333;
+    color: var(--matcha);
 }
 
-.header h2 {
+h2 {
     margin: 0;
     padding: 0;
     font-size: 16px;
-    color: #666;
+    color: var(--forest);
 }
 
 .subtitle {
     margin: 4px 0 0 0;
     font-size: 12px;
-    color: #666;
+    color: var(--primary-dark);
 }
 
 .settings-group {
     background: white;
     border-radius: 8px;
-    margin-top: 20px;
+    margin-bottom: 16px;
     width: 100%;
     box-sizing: border-box;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
 }
 
 .setting-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px;
+    padding: 8px 12px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -58,13 +66,13 @@ body {
 .setting-title {
     font-size: 14px;
     font-weight: 500;
-    color: #333;
+    color: var(--carob);
     margin-bottom: 4px;
 }
 
 .setting-description {
     font-size: 12px;
-    color: #666;
+    color: var(--forest);
 }
 
 /* Switch styles */
@@ -107,7 +115,7 @@ body {
 }
 
 input:checked + .slider {
-    background-color: #4A7C59;
+    background-color: var(--primary);
 }
 
 input:checked + .slider:before {
@@ -181,7 +189,7 @@ input[type="number"] {
   }
   
   .upload-button {
-    background-color: #4A7C59;
+    background-color: var(--primary);
     color: white;
     padding: 6px 12px;
     border-radius: 4px;
@@ -191,7 +199,7 @@ input[type="number"] {
   }
   
   .upload-button:hover {
-    background-color: #3d6548;
+    background-color: var(--primary-dark);
   }
   
   .reset-button {
@@ -420,4 +428,119 @@ input[type="number"] {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
+}
+
+.main-header {
+  background: var(--cream);
+  color: var(--forest);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-nav {
+  display: flex;
+  gap: 4px;
+  padding: 8px 4px;
+  border-bottom: none;
+  background: var(--matcha);
+  justify-content: center;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+  background: rgba(229, 224, 216, 0.7);
+  color: var(--carob);
+}
+
+.settings-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  display: none;
+  padding: 16px;
+  background: var(--almond);
+}
+
+.settings-section.active {
+  display: block;
+  height: 100%;
+}
+
+.settings-group {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.settings-group h2 {
+  font-size: 16px;
+  padding: 10px;
+  margin: 0;
+  border-bottom: 1px solid var(--cream);
+  color: var(--forest);
+}
+
+.collapsible {
+  transition: max-height 0.3s ease-out;
+}
+
+/* Update existing modal styles */
+.modal {
+  background: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.settings-content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Update theme colors and styling */
+:root {
+    /* Primary Colors */
+    --matcha: #8fa183;     /* Softened green */
+    --almond: #f5f3ef;     /* Lighter, more neutral background */
+    --pistache: #eceee4;   /* Softer accent */
+    --chai: #d9bea3;       /* Softened brown */
+    --carob: #796b54;      /* More muted brown */
+    --vanilla: #f0e9e1;    /* Softer vanilla */
+    --forest: #5d6654;     /* Softer forest green */
+    --cream: #f8f7f5;      /* Lighter cream */
+
+    /* Functional Variables */
+    --primary: var(--matcha);
+    --primary-dark: var(--carob);
+    --accent: var(--pistache);
+    --background: var(--almond);
+    --border: #e8e4de;     /* Subtler border color */
+    --title: var(--carob);
+    --text: #666666;       /* Lighter text for better readability */
 }

@@ -761,4 +761,47 @@ document.addEventListener("DOMContentLoaded", function () {
   topNavColorPicker.addEventListener("change", updateTopNavBackground);
   topNavOpacity.addEventListener("change", updateTopNavBackground);
   topNavOpacity.addEventListener("input", updateTopNavBackground);
+
+  // Tab navigation
+  const navButtons = document.querySelectorAll(".nav-item");
+  const sections = document.querySelectorAll(".settings-section");
+
+  // Load last active tab
+  chrome.storage.local.get(["activeTab"], function (result) {
+    const activeTab = result.activeTab || "appearance"; // Default to appearance if no saved state
+
+    // Update UI to show saved tab
+    navButtons.forEach((btn) => {
+      if (btn.dataset.section === activeTab) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+
+    sections.forEach((section) => {
+      if (section.id === activeTab) {
+        section.classList.add("active");
+      } else {
+        section.classList.remove("active");
+      }
+    });
+  });
+
+  // Update click handlers to save state
+  navButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetSection = button.dataset.section;
+
+      // Update active states
+      navButtons.forEach((btn) => btn.classList.remove("active"));
+      sections.forEach((section) => section.classList.remove("active"));
+
+      button.classList.add("active");
+      document.getElementById(targetSection).classList.add("active");
+
+      // Save active tab state
+      chrome.storage.local.set({ activeTab: targetSection });
+    });
+  });
 });

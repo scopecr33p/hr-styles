@@ -67,25 +67,22 @@
 
   // Add message listener for font updates
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "updateFont") {
-      try {
-        FontManagerFeature.injectFontFace(message.fontType, message.fontData);
-        // Reapply text styles after font injection
+    switch (message.type) {
+      case "updateFont":
+        try {
+          FontManagerFeature.injectFontFace(message.fontType, message.fontData);
+          TextCustomizationFeature.loadAndApplyStyles();
+          sendResponse({ success: true });
+        } catch (error) {
+          console.error("Font update error:", error);
+          sendResponse({ success: false, error: error.message });
+        }
+        break;
+
+      case "updateTextStyles":
         TextCustomizationFeature.loadAndApplyStyles();
         sendResponse({ success: true });
-      } catch (error) {
-        console.error("Font update error:", error);
-        sendResponse({ success: false, error: error.message });
-      }
-    }
-    return true;
-  });
-
-  // Add message listener for text styles
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "updateTextStyles") {
-      TextCustomizationFeature.loadAndApplyStyles();
-      sendResponse({ success: true });
+        break;
     }
     return true;
   });
