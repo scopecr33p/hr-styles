@@ -89,4 +89,24 @@
     }
     return true;
   });
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "updateTopNavIcons") {
+      const filterValue = message.grayscale ? "grayscale(100%)" : "none";
+      const icons = document.querySelectorAll(".icon24, .header-menu img");
+      icons.forEach((icon) => {
+        icon.style.filter = filterValue;
+      });
+    }
+  });
+
+  // Apply saved icon styles on page load
+  chrome.storage.sync.get(["topNavIconsGrayscale"], function (result) {
+    if (result.topNavIconsGrayscale) {
+      const icons = document.querySelectorAll(".icon24, .header-menu img");
+      icons.forEach((icon) => {
+        icon.style.filter = "grayscale(100%)";
+      });
+    }
+  });
 })();

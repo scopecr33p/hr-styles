@@ -737,10 +737,14 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function updateTopNavIcons() {
-    const filterValue = topNavIconsGrayscale.checked
-      ? "grayscale(100%)"
-      : "none";
-    StyleCustomizationFeature.updateCustomStyle("topNavIcons", filterValue);
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: "updateTopNavIcons",
+          grayscale: topNavIconsGrayscale.checked,
+        });
+      }
+    });
   }
 
   // Add this function near the other background update functions
