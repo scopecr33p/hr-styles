@@ -42,6 +42,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const topNavIconsGrayscale = document.getElementById("topNavIconsGrayscale");
   const inputBorderRadius = document.getElementById("inputBorderRadius");
   const hideNavIcons = document.getElementById("hideNavIcons");
+  const linkSize = document.getElementById("linkSize");
+  const linkWeight = document.getElementById("linkWeight");
+  const linkColor = document.getElementById("linkColor");
+  const linkAlign = document.getElementById("linkAlign");
+  const linkTransform = document.getElementById("linkTransform");
+  const linkFont = document.getElementById("linkFont");
+  const linkItalicToggle = document.getElementById("linkItalicToggle");
+  const linkUnderlineToggle = document.getElementById("linkUnderlineToggle");
+  const linkStrikeToggle = document.getElementById("linkStrikeToggle");
 
   // Load saved override state
   chrome.storage.local.get(["overrideAllBackgrounds"], function (result) {
@@ -578,6 +587,15 @@ document.addEventListener("DOMContentLoaded", function () {
       updateBackground("topNav", topNavColorPicker.value, topNavOpacity.value),
     updateTextElementStyles,
     hideNavIcons,
+    linkSize,
+    linkWeight,
+    linkColor,
+    linkAlign,
+    linkTransform,
+    linkFont,
+    linkItalicToggle,
+    linkUnderlineToggle,
+    linkStrikeToggle,
   });
 
   // Handle reset button click
@@ -616,6 +634,17 @@ document.addEventListener("DOMContentLoaded", function () {
         italic: h1ItalicToggle,
         underline: h1UnderlineToggle,
         strike: h1StrikeToggle,
+      },
+      link: {
+        size: linkSize,
+        weight: linkWeight,
+        color: linkColor,
+        align: linkAlign,
+        transform: linkTransform,
+        font: linkFont,
+        italic: linkItalicToggle,
+        underline: linkUnderlineToggle,
+        strike: linkStrikeToggle,
       },
     };
 
@@ -933,4 +962,23 @@ document.addEventListener("DOMContentLoaded", function () {
       hideNavIcons: this.checked,
     });
   });
+
+  // Add link event listeners similar to h1 and subtitle
+  [
+    [linkSize, "change"],
+    [linkColor, "input"],
+    [linkWeight, "change"],
+    [linkAlign, "change"],
+    [linkTransform, "change"],
+    [linkFont, "change"],
+  ].forEach(([element, event]) => {
+    element.addEventListener(event, () => updateTextElementStyles("link"));
+  });
+
+  // Add link toggles to style toggle handlers
+  addTextStyleToggleHandlers("link", [
+    linkItalicToggle,
+    linkUnderlineToggle,
+    linkStrikeToggle,
+  ]);
 });

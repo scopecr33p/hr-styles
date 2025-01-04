@@ -101,6 +101,20 @@
             "underline": false,
             "strike": false
           }
+        },
+        "link": {
+          "selector": "a:not(.nav-item):not(.upload-button)",
+          "defaults": {
+            "size": "13",
+            "weight": "",
+            "color": "#0066cc",
+            "align": "",
+            "transform": "",
+            "font": "",
+            "italic": false,
+            "underline": true,
+            "strike": false
+          }
         }
       }
     },

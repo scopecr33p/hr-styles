@@ -82,6 +82,23 @@ class ResetManager {
       this.elements.h1UnderlineToggle,
       this.elements.h1StrikeToggle,
     ].forEach((toggle) => toggle.classList.remove("active"));
+
+    // Add link resets
+    this.elements.linkSize.value = "14";
+    this.elements.linkWeight.value = "";
+    this.elements.linkColor.value = "#0066cc";
+    this.elements.linkAlign.value = "";
+    this.elements.linkTransform.value = "";
+    this.elements.linkFont.value = "";
+
+    [
+      this.elements.linkItalicToggle,
+      this.elements.linkUnderlineToggle,
+      this.elements.linkStrikeToggle,
+    ].forEach((toggle) => toggle.classList.remove("active"));
+
+    // Set default underline for links
+    this.elements.linkUnderlineToggle.classList.add("active");
   }
 
   resetInputs() {
