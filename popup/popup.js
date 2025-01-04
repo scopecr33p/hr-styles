@@ -1,12 +1,3 @@
-const TEXT_SIZE_CONFIG = {
-  min: 8,
-  max: 64,
-  defaults: {
-    subtitle: 14,
-    h1: 24,
-  },
-};
-
 document.addEventListener("DOMContentLoaded", function () {
   const flipFoalsToggle = document.getElementById("flipFoals");
   const navColorPicker = document.getElementById("navBackground");
@@ -70,36 +61,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
-  }
-
-  // Replace the individual element value settings with a function that uses the config defaults
-  function setElementDefaults(elementId, defaults) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-
-    switch (element.type) {
-      case "number":
-        element.value = defaults.size || "";
-        break;
-      case "color":
-        element.value = defaults.color || "#333333";
-        break;
-      case "select-one":
-        element.value =
-          defaults[elementId.replace(/(subtitle|h1)/i, "").toLowerCase()] || "";
-        break;
-      default:
-        if (element.classList.contains("style-toggle")) {
-          const type = elementId.toLowerCase().includes("italic")
-            ? "italic"
-            : elementId.toLowerCase().includes("underline")
-            ? "underline"
-            : "strike";
-          if (defaults[type]) {
-            element.classList.add("active");
-          }
-        }
-    }
   }
 
   // Load saved text style states
@@ -209,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "strikeToggle",
     ];
     subtitleElements.forEach((id) =>
-      setElementDefaults(id, subtitleDefaults.defaults)
+      ResetManager.setElementDefaults(id, subtitleDefaults.defaults)
     );
 
     // Set defaults for h1 elements
@@ -224,7 +185,9 @@ document.addEventListener("DOMContentLoaded", function () {
       "h1UnderlineToggle",
       "h1StrikeToggle",
     ];
-    h1Elements.forEach((id) => setElementDefaults(id, h1Defaults.defaults));
+    h1Elements.forEach((id) =>
+      ResetManager.setElementDefaults(id, h1Defaults.defaults)
+    );
 
     // Apply any saved values that override defaults
     Object.entries(localResult).forEach(([key, value]) => {
@@ -530,86 +493,46 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.style.display = "none";
   });
 
-  confirmButton.addEventListener("click", async () => {
-    // Reset all storage
-    await Promise.all([
-      chrome.storage.sync.clear(),
-      chrome.storage.local.clear(),
-    ]);
+  // Create reset manager instance using global class
+  const resetManager = new ResetManager({
+    bannerPreview,
+    bannerPreviewContainer,
+    bannerInput,
+    navColorPicker,
+    navOpacity,
+    inputColorPicker,
+    inputOpacity,
+    topNavColorPicker,
+    topNavOpacity,
+    topNavIconsGrayscale,
+    subtitleSize,
+    subtitleWeight,
+    subtitleColor,
+    subtitleAlign,
+    subtitleTransform,
+    subtitleFont,
+    h1Size,
+    h1Weight,
+    h1Color,
+    h1Align,
+    h1Transform,
+    h1Font,
+    italicToggle,
+    underlineToggle,
+    strikeToggle,
+    h1ItalicToggle,
+    h1UnderlineToggle,
+    h1StrikeToggle,
+    updateNavBackground,
+    updateInputBackground,
+    updateTopNavBackground,
+    updateTextElementStyles,
+  });
 
-    // Reset all input values to website defaults
-    flipFoalsToggle.checked = false;
-    navColorPicker.value = "#eaf0f2";
-    inputColorPicker.value = "#c5d8de";
-    navOpacity.value = "100";
-    inputOpacity.value = "100";
-    overrideToggle.checked = false;
-    topNavColorPicker.value = "#081b28";
-    topNavOpacity.value = "100";
-    topNavIconsGrayscale.checked = false;
-
-    // Reset text customization to website defaults
-    subtitleSize.value = TEXT_SIZE_CONFIG.defaults.subtitle;
-    subtitleWeight.value = "";
-    subtitleColor.value = "#333333";
-    subtitleAlign.value = "";
-    subtitleTransform.value = "";
-    subtitleFont.value = "";
-    h1Size.value = TEXT_SIZE_CONFIG.defaults.h1;
-    h1Weight.value = "";
-    h1Color.value = "#333333";
-    h1Align.value = "";
-    h1Transform.value = "";
-    h1Font.value = "";
-
-    // Reset text style toggles
-    [
-      italicToggle,
-      underlineToggle,
-      strikeToggle,
-      h1ItalicToggle,
-      h1UnderlineToggle,
-      h1StrikeToggle,
-    ].forEach((toggle) => {
-      toggle.classList.remove("active");
-    });
-
-    // Reset banner
-    bannerPreview.src = "";
-    bannerPreviewContainer.style.display = "none";
-    bannerInput.value = "";
-
-    // Reset font previews
-    primaryPreview.textContent = "No font selected";
-    primaryPreview.classList.remove("loaded", "font-loading");
-    secondaryPreview.textContent = "No font selected";
-    secondaryPreview.classList.remove("loaded", "font-loading");
-
-    // Update all styles
-    updateNavBackground();
-    updateInputBackground();
-    updateTopNavBackground();
-    updateTextElementStyles("subtitle");
-    updateTextElementStyles("h1");
-    updateFontDropdown();
-
-    // Close modal
+  // Handle reset button click
+  confirmButton.addEventListener("click", function () {
+    resetManager.resetAll();
     modal.style.display = "none";
-
-    // Reload all tabs to apply changes
-    chrome.tabs.query({ url: "*://*.horsereality.com/*" }, (tabs) => {
-      tabs.forEach((tab) => {
-        chrome.tabs.reload(tab.id);
-      });
-    });
-
-    // Reset accordion states
-    await chrome.storage.local.set({ accordionStates: {} });
-
-    // Remove collapsed class from all groups
-    document.querySelectorAll(".settings-group").forEach((group) => {
-      group.classList.remove("collapsed");
-    });
   });
 
   // Close modal when clicking outside

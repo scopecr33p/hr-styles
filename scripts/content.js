@@ -96,6 +96,10 @@
         TextCustomizationFeature.loadAndApplyStyles();
         sendResponse({ success: true });
         break;
+
+      case "ping":
+        sendResponse({ status: "ready" });
+        return true;
     }
     return true;
   });

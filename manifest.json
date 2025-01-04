@@ -21,6 +21,7 @@
     {
       "matches": ["*://*.horsereality.com/*"],
       "js": [
+        "scripts/features/reset-manager.js",
         "scripts/features/text-element.js",
         "scripts/feature-manager.js",
         "scripts/features/style-manager.js",
@@ -35,7 +36,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["scripts/features-config.json"],
+      "resources": ["scripts/features/*.js", "scripts/features-config.json"],
       "matches": ["<all_urls>"]
     }
   ]

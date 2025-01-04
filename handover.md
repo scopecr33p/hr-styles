@@ -273,3 +273,57 @@ Dual storage approach:
 - Maintain backwards compatibility
 - Document all changes
 - Test across different Chrome versions
+
+# Reset Management
+
+## Overview
+The reset functionality is centralized in a ResetManager class that handles resetting all styles and UI elements to their defaults. This ensures consistent reset behavior and makes it easier to maintain and extend reset functionality.
+
+## Implementation Strategy
+- Single ResetManager class in reset-manager.js
+- Handles both UI element resets and style application
+- Uses features-config.json for default values
+- Maintains existing style update patterns
+
+## Core Components
+
+### ResetManager Class
+Located in scripts/features/reset-manager.js, handles:
+- Individual feature resets (banner, navigation, text styles)
+- Global reset functionality
+- Default value application
+- Style updates after reset
+
+### Configuration
+Default values stored in features-config.json:
+- Text sizes (h1, subtitle)
+- Color values
+- Other style defaults
+
+### Integration Points
+Reset functionality is integrated through:
+1. HTML: Script loaded in popup.html
+2. Manifest: Included in content_scripts
+3. Popup: ResetManager instance created with required elements and update functions
+
+## Adding New Reset Functionality
+To add reset capability for a new style feature:
+
+1. Add default values to features-config.json if needed
+2. Create reset method in ResetManager class
+3. Pass required elements to ResetManager constructor
+4. Add style update function call in resetAll method
+5. Pass update function from popup.js
+
+Example steps for adding new background color reset:
+1. Add default color to features-config.json
+2. Create resetBackground method in ResetManager
+3. Pass background elements to constructor
+4. Add updateBackground call in resetAll
+5. Pass updateBackground function from popup.js
+
+## Technical Implementation
+- ResetManager available globally through window object
+- Static methods for shared functionality (setElementDefaults)
+- Instance methods for specific reset operations
+- Maintains existing style update patterns
