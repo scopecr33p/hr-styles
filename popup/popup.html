@@ -29,9 +29,9 @@
           <span class="icon">🖼️</span>
           Images
         </button>
-        <button class="nav-item" data-section="advanced">
+        <button class="nav-item" data-section="Settings">
           <span class="icon">⚙️</span>
-          Advanced
+          Settings
         </button>
       </nav>
 
@@ -62,7 +62,7 @@
             </div>
             <div class="setting-item">
               <div class="setting-content">
-                <div class="setting-title">Top Navigation</div>
+                <div class="setting-title">Top Navigation Background</div>
                 <div class="setting-description">Change top bar appearance</div>
               </div>
               <div class="color-picker">
@@ -307,9 +307,9 @@
             <h2>Horse Backgrounds</h2>
             <div class="setting-item">
               <div class="setting-content">
-                <div class="setting-title">Override Backgrounds</div>
+                <div class="setting-title">Override All Custom Backgrounds</div>
                 <div class="setting-description">
-                  Replace all horse profile backgrounds
+                  Leave off to only change default backgrounds.
                 </div>
               </div>
               <label class="switch">
@@ -318,6 +318,13 @@
               </label>
             </div>
             <div class="setting-item">
+              <div class="setting-content">
+                <div class="setting-title">Upload A Custom Background</div>
+                <div class="setting-description">
+                  Upload a custom background image to display on horse profiles,
+                  recommended size is 960px x 600px.
+                </div>
+              </div>
               <div class="image-upload-container">
                 <input
                   type="file"
@@ -355,14 +362,17 @@
           </div>
         </section>
 
-        <!-- Advanced Section -->
-        <section id="advanced" class="settings-section">
+        <!-- Settings Section -->
+        <section id="Settings" class="settings-section">
           <div class="settings-group">
-            <h2>Reset Options</h2>
+            <h2>Reset All</h2>
             <div class="setting-item">
               <div class="setting-content">
                 <div class="setting-title">Reset All Settings</div>
-                <div class="setting-description">Restore default values</div>
+                <div class="setting-description">
+                  Restore to default values and styling. Warning, this will
+                  remove all styling and custom fonts. It can not be undone.
+                </div>
               </div>
               <button id="resetAllSettings" class="reset-button danger">
                 Reset All

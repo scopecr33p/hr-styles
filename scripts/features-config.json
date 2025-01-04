@@ -1,6 +1,11 @@
 {
   "features": [
     {
+      "name": "inventoryManager",
+      "enabled": true,
+      "urlPatterns": ["*://*.horsereality.com/inventory*"]
+    },
+    {
       "name": "styleCustomization",
       "enabled": true,
       "styles": {

@@ -30,7 +30,7 @@ The popup interface uses a tabbed navigation system with four main sections:
 - Appearance - Color and style settings
 - Typography - Font and text customization
 - Images - Background and foal image settings
-- Advanced - Reset and advanced options
+- Settings - Reset and settings options
 
 Each section contains collapsible setting groups (accordions) that:
 - Open/close on header click

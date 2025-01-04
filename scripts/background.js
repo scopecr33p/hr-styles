@@ -54,7 +54,7 @@ async function injectStyles(tabId) {
     if (isV2) {
       await injectV2Styles(tabId);
     } else {
-      await injectNonV2Styles(tabId);
+      await injectNonV2Styles(tabId, tab.url);
     }
 
     // Ensure fonts are cached

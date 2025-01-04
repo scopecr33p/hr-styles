@@ -6,13 +6,22 @@ class FeatureManager {
   }
 
   async loadConfig() {
-    if (!this.config) {
+    try {
       const response = await fetch(
         chrome.runtime.getURL("scripts/features-config.json")
       );
       this.config = await response.json();
+
+      // Initialize features after config is loaded
+      if (window.location.href.includes("horsereality.com/inventory")) {
+        this.features.set("inventoryManager", InventoryManagerFeature.init());
+      }
+
+      return this.config;
+    } catch (error) {
+      console.error("Failed to load feature config:", error);
+      return { features: [] }; // Return default config if loading fails
     }
-    return this.config;
   }
 
   matchesPattern(url, pattern) {
@@ -22,8 +31,10 @@ class FeatureManager {
   }
 
   async shouldApplyFeature(featureName) {
-    const config = await this.configPromise;
-    const featureConfig = config.features.find((f) => f.name === featureName);
+    await this.configPromise; // Wait for config to load
+    const featureConfig = this.config.features.find(
+      (f) => f.name === featureName
+    );
 
     if (!featureConfig) return false;
 

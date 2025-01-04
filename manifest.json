@@ -23,6 +23,7 @@
       "js": [
         "scripts/features/reset-manager.js",
         "scripts/features/text-element.js",
+        "scripts/features/inventory-manager.js",
         "scripts/feature-manager.js",
         "scripts/features/style-manager.js",
         "scripts/features/foal-flip.js",
