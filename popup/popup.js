@@ -411,8 +411,19 @@ document.addEventListener("DOMContentLoaded", function () {
       preview.textContent = "Uploading...";
       preview.classList.add("font-loading");
 
-      // Use FontManagerFeature to handle the upload
-      const fontData = await FontManagerFeature.handleFontUpload(file, type);
+      // Read file as base64
+      const base64Font = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Save font data to storage
+      await chrome.storage.local.set({
+        [`${type}Font`]: base64Font,
+        [`${type}FontName`]: file.name,
+      });
 
       // Send message to content script to update fonts
       await new Promise((resolve) => {
@@ -423,9 +434,15 @@ document.addEventListener("DOMContentLoaded", function () {
               {
                 type: "updateFont",
                 fontType: type,
-                fontData: fontData,
+                fontData: base64Font,
               },
-              resolve
+              (response) => {
+                // Handle chrome.runtime.lastError to prevent unchecked error
+                if (chrome.runtime.lastError) {
+                  console.log("Tab not ready, but font is saved in storage");
+                }
+                resolve();
+              }
             );
           } else {
             resolve();
@@ -437,6 +454,9 @@ document.addEventListener("DOMContentLoaded", function () {
       preview.textContent = file.name;
       preview.classList.remove("font-loading");
       preview.classList.add("loaded");
+
+      // Update font dropdowns
+      updateFontDropdown();
     } catch (error) {
       console.error("Font upload failed:", error);
       preview.textContent = "Upload failed";
@@ -445,17 +465,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   primaryFileInput.addEventListener("change", (e) => {
-    handleFontUpload(e.target.files[0], "primary", primaryPreview).then(() => {
-      updateFontDropdown();
-    });
+    handleFontUpload(e.target.files[0], "primary", primaryPreview);
   });
 
   secondaryFileInput.addEventListener("change", (e) => {
-    handleFontUpload(e.target.files[0], "secondary", secondaryPreview).then(
-      () => {
-        updateFontDropdown();
-      }
-    );
+    handleFontUpload(e.target.files[0], "secondary", secondaryPreview);
   });
 
   subtitleFont.addEventListener("change", function () {

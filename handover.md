@@ -121,21 +121,42 @@ Configuration-driven text styling system.
 }
 <----CODE END---->
 
-### Font Management
-Custom font handling system.
+## Font Management
 
-#### Implementation Strategy:
-- Asynchronous font loading
-- Base64 storage
-- Dynamic injection
-- Preview system
+The font management system is split into two parts:
 
-#### Technical Flow:
-1. Font upload and validation
-2. Storage in chrome.storage.local
-3. Dynamic @font-face injection
-4. Real-time application
-5. Integration with text customization
+### Popup Context (popup.js)
+Handles:
+- Font file uploads
+- Saving fonts to Chrome storage
+- UI updates in the extension popup
+- Sending messages to content scripts (when possible)
+
+### Content Script Context (font-manager.js)
+The FontManagerFeature class handles:
+- Injecting fonts into web pages
+- Listening for storage changes
+- Creating font-face declarations
+- Applying fonts to webpages
+
+### How it works
+1. User uploads font in popup
+2. Popup converts font to base64 and saves to Chrome storage
+3. FontManagerFeature detects storage change
+4. FontManagerFeature injects font into webpage
+
+### Font Storage
+Fonts are stored in Chrome's local storage as:
+- primaryFont: base64 font data
+- primaryFontName: original filename
+- secondaryFont: base64 font data
+- secondaryFontName: original filename
+
+### Supported Font Types
+- TTF
+- OTF
+- WOFF
+- WOFF2
 
 ### Horse Background Customization
 
@@ -327,3 +348,36 @@ Example steps for adding new background color reset:
 - Static methods for shared functionality (setElementDefaults)
 - Instance methods for specific reset operations
 - Maintains existing style update patterns
+
+## Script Loading and Architecture
+
+### Module Pattern
+The extension uses a classic script loading pattern rather than ES modules. This is intentional as Chrome extensions cannot use `type: "module"` in content scripts by default.
+
+Scripts are loaded in a specific order via the manifest's content_scripts array. Each feature is self-contained and initialized through the feature manager system.
+
+### Adding New Features
+When adding a new feature:
+
+1. Create your feature script in `scripts/features/`
+2. Add it to manifest.json's content_scripts array *before* feature-manager.js
+3. Use the global scope for sharing functionality - do not use import/export statements
+4. Register your feature with the feature manager using `FeatureManager.register()`
+
+### Script Load Order
+The load order in manifest.json is critical:
+1. Core utilities and managers load first
+2. Individual features load next
+3. Feature manager loads after all features
+4. Main content script loads last
+
+This ensures all dependencies are available when needed.
+
+### State Management
+Features should use the FeatureManager for:
+- Registration
+- Settings management
+- Feature toggling
+- Cross-feature communication
+
+Avoid creating module-level dependencies between features. Instead, use the FeatureManager's event system for cross-feature communication.
