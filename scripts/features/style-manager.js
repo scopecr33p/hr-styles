@@ -10,6 +10,7 @@ class StyleCustomizationFeature {
         "inputBackgroundRgba",
         "topNavBackgroundRgba",
         "inputBorderRadius",
+        "hideNavIcons",
       ],
       (result) => {
         if (result.navBackgroundRgba) {
@@ -26,6 +27,9 @@ class StyleCustomizationFeature {
         }
         if (result.topNavBackgroundRgba) {
           this.updateCustomStyle("topNav", result.topNavBackgroundRgba);
+        }
+        if (result.hideNavIcons) {
+          this.updateCustomStyle("navIcons", "none");
         }
       }
     );
@@ -53,6 +57,12 @@ class StyleCustomizationFeature {
           changes.topNavIconsGrayscale.newValue ? "grayscale(100%)" : "none"
         );
       }
+      if (changes.hideNavIcons) {
+        this.updateCustomStyle(
+          "navIcons",
+          changes.hideNavIcons.newValue ? "none" : ""
+        );
+      }
     });
 
     return {
@@ -75,6 +85,31 @@ class StyleCustomizationFeature {
         filter: ${value} !important;
         -webkit-filter: ${value} !important;
       }`;
+    } else if (type === "navIcons") {
+      css = `
+        html body .side-nav .fa-solid,
+        html body .side-nav .fas,
+        html body .leftnav.hide-xs .fa-solid,
+        html body .leftnav.hide-xs .fas,
+        body#currency-exchange div.container .leftnav.hide-xs .fa-solid,
+        body#currency-exchange div.container .leftnav.hide-xs .fas,
+        body#forum div.container .leftnav.hide-xs .fa-solid,
+        body#forum div.container .leftnav.hide-xs .fas,
+        body#inventory div.container .leftnav.hide-xs .fa-solid,
+        body#inventory div.container .leftnav.hide-xs .fas,
+        body#foundation-breeder div.container .leftnav.hide-xs .fa-solid,
+        body#foundation-breeder div.container .leftnav.hide-xs .fas,
+        body#equistore div.container .leftnav.hide-xs .fa-solid,
+        body#equistore div.container .leftnav.hide-xs .fas,
+        body#wildlife-park div.container .leftnav.hide-xs .fa-solid,
+        body#wildlife-park div.container .leftnav.hide-xs .fas,
+        body#search div.container .leftnav.hide-xs .fa-solid,
+        body#search div.container .leftnav.hide-xs .fas,
+        body#horses.background .leftnav.hide-xs .fa-solid,
+        body#horses.background .leftnav.hide-xs .fas {
+          display: ${value === "none" ? "none" : "inline-block"} !important;
+        }
+      `;
     } else {
       css = `:root { --hr-${type}-background: ${value} !important; }`;
     }

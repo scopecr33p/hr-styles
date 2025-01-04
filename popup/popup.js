@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const topNavOpacity = document.getElementById("topNavOpacity");
   const topNavIconsGrayscale = document.getElementById("topNavIconsGrayscale");
   const inputBorderRadius = document.getElementById("inputBorderRadius");
+  const hideNavIcons = document.getElementById("hideNavIcons");
 
   // Load saved override state
   chrome.storage.local.get(["overrideAllBackgrounds"], function (result) {
@@ -576,6 +577,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTopNavBackground: () =>
       updateBackground("topNav", topNavColorPicker.value, topNavOpacity.value),
     updateTextElementStyles,
+    hideNavIcons,
   });
 
   // Handle reset button click
@@ -918,5 +920,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const validRadius = validateBorderRadius(this.value);
     this.value = validRadius;
     chrome.storage.sync.set({ inputBorderRadius: validRadius });
+  });
+
+  // Add to initial state loading
+  chrome.storage.sync.get(["hideNavIcons"], function (result) {
+    hideNavIcons.checked = result.hideNavIcons || false;
+  });
+
+  // Handle toggle
+  hideNavIcons.addEventListener("change", function () {
+    chrome.storage.sync.set({
+      hideNavIcons: this.checked,
+    });
   });
 });

@@ -45,6 +45,8 @@ class ResetManager {
   resetNavigation() {
     this.elements.navColorPicker.value = "#eaf0f2";
     this.elements.navOpacity.value = "100";
+    this.elements.hideNavIcons.checked = false;
+    chrome.storage.sync.set({ hideNavIcons: false });
   }
 
   resetTopNav() {

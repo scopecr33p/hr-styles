@@ -78,12 +78,33 @@ Core styling system handling global UI elements.
   - Uses CSS filters for consistent cross-browser support
   - Real-time toggle without page reload
   - Persists settings across sessions
+- Side navigation icons toggle
+  - Hides/shows icons in side navigation for both v2 and non-v2 pages
+  - Uses display property for consistent behavior
+  - Real-time toggle without page reload
+  - Persists settings across sessions
 
 #### Technical Implementation:
-- Direct CSS filter application
+- Direct CSS filter/display property application
 - No background variable interference
 - Webkit prefix for broader compatibility
-- Selective targeting of icon24 class and header menu icons
+- Selective targeting using comprehensive selectors for both v2 and non-v2 pages
+- Explicit display property values for consistent behavior
+  - display: none when hiding icons
+  - display: inline-block when showing icons
+
+#### Storage Pattern:
+{
+  "topNavIconsGrayscale": boolean,
+  "hideNavIcons": boolean
+}
+
+#### Best Practices:
+- Use explicit display values rather than relying on default styles
+- Include selectors for both v2 and non-v2 page structures
+- Maintain specific body ID selectors for different page types
+- Follow existing storage patterns for consistency
+- Ensure real-time updates without page refresh
 
 ### Text Customization
 Configuration-driven text styling system.
