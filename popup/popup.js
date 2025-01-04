@@ -232,20 +232,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle color and opacity changes for navigation
   function updateNavBackground() {
-    const rgba = hexToRgba(navColorPicker.value, navOpacity.value);
+    const validOpacity = validateOpacity(navOpacity.value);
+    navOpacity.value = validOpacity; // Update input with validated value
+    const rgba = hexToRgba(navColorPicker.value, validOpacity);
     chrome.storage.sync.set({
       navBackground: navColorPicker.value,
-      navOpacity: navOpacity.value,
+      navOpacity: validOpacity,
       navBackgroundRgba: rgba,
     });
   }
 
   // Handle color and opacity changes for input
   function updateInputBackground() {
-    const rgba = hexToRgba(inputColorPicker.value, inputOpacity.value);
+    const validOpacity = validateOpacity(inputOpacity.value);
+    inputOpacity.value = validOpacity; // Update input with validated value
+    const rgba = hexToRgba(inputColorPicker.value, validOpacity);
     chrome.storage.sync.set({
       inputBackground: inputColorPicker.value,
-      inputOpacity: inputOpacity.value,
+      inputOpacity: validOpacity,
       inputBackgroundRgba: rgba,
     });
   }
@@ -739,10 +743,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add this function near the other background update functions
   function updateTopNavBackground() {
-    const rgba = hexToRgba(topNavColorPicker.value, topNavOpacity.value);
+    const validOpacity = validateOpacity(topNavOpacity.value);
+    topNavOpacity.value = validOpacity; // Update input with validated value
+    const rgba = hexToRgba(topNavColorPicker.value, validOpacity);
     chrome.storage.sync.set({
       topNavBackground: topNavColorPicker.value,
-      topNavOpacity: topNavOpacity.value,
+      topNavOpacity: validOpacity,
       topNavBackgroundRgba: rgba,
     });
   }
