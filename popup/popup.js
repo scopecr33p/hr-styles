@@ -142,11 +142,22 @@ document.addEventListener("DOMContentLoaded", function () {
     if (syncResult.inputBackground) {
       inputColorPicker.value = syncResult.inputBackground;
     }
+    // Inside the Promise.then callback where storage is loaded
     if (syncResult.navOpacity) {
-      navOpacity.value = syncResult.navOpacity;
+      const validNavOpacity = validateOpacity(syncResult.navOpacity);
+      navOpacity.value = validNavOpacity;
+      // Update storage if validation changed the value
+      if (validNavOpacity !== syncResult.navOpacity) {
+        chrome.storage.sync.set({ navOpacity: validNavOpacity });
+      }
     }
     if (syncResult.inputOpacity) {
-      inputOpacity.value = syncResult.inputOpacity;
+      const validInputOpacity = validateOpacity(syncResult.inputOpacity);
+      inputOpacity.value = validInputOpacity;
+      // Update storage if validation changed the value
+      if (validInputOpacity !== syncResult.inputOpacity) {
+        chrome.storage.sync.set({ inputOpacity: validInputOpacity });
+      }
     }
     if (syncResult.flipFoals) {
       flipFoalsToggle.checked = syncResult.flipFoals;
@@ -208,7 +219,17 @@ document.addEventListener("DOMContentLoaded", function () {
       topNavColorPicker.value = syncResult.topNavBackground;
     }
     if (syncResult.topNavOpacity) {
-      topNavOpacity.value = syncResult.topNavOpacity;
+      const validTopNavOpacity = validateOpacity(syncResult.topNavOpacity);
+      topNavOpacity.value = validTopNavOpacity;
+      if (validTopNavOpacity !== syncResult.topNavOpacity) {
+        chrome.storage.sync.set({
+          topNavOpacity: validTopNavOpacity,
+          topNavBackgroundRgba: hexToRgba(
+            topNavColorPicker.value,
+            validTopNavOpacity
+          ),
+        });
+      }
     }
   });
 
@@ -225,9 +246,10 @@ document.addEventListener("DOMContentLoaded", function () {
     chrome.storage.sync.set({ flipFoals: this.checked });
   });
 
-  // Validate and clamp opacity value between 0 and 100
-  function validateOpacity(value) {
-    return Math.min(Math.max(parseInt(value) || 0, 0), 100);
+  // Add validation function
+  function validateOpacity(value, defaultValue = 100) {
+    const opacity = parseInt(value) || defaultValue;
+    return Math.min(Math.max(opacity, 1), 100);
   }
 
   // Handle color and opacity changes for navigation
@@ -302,14 +324,6 @@ document.addEventListener("DOMContentLoaded", function () {
       bannerInput.value = "";
     });
   });
-
-  navColorPicker.addEventListener("change", updateNavBackground);
-  navOpacity.addEventListener("change", updateNavBackground);
-  navOpacity.addEventListener("input", updateNavBackground);
-
-  inputColorPicker.addEventListener("change", updateInputBackground);
-  inputOpacity.addEventListener("change", updateInputBackground);
-  inputOpacity.addEventListener("input", updateInputBackground);
 
   // Update event listeners for subtitle
   [
@@ -510,6 +524,18 @@ document.addEventListener("DOMContentLoaded", function () {
   cancelButton.addEventListener("click", () => {
     modal.style.display = "none";
   });
+
+  // Handle color and opacity changes for top navigation
+  function updateTopNavBackground() {
+    const validOpacity = validateOpacity(topNavOpacity.value);
+    topNavOpacity.value = validOpacity; // Update input with validated value
+    const rgba = hexToRgba(topNavColorPicker.value, validOpacity);
+    chrome.storage.sync.set({
+      topNavBackground: topNavColorPicker.value,
+      topNavOpacity: validOpacity,
+      topNavBackgroundRgba: rgba,
+    });
+  }
 
   // Create reset manager instance using global class
   const resetManager = new ResetManager({
@@ -723,41 +749,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   });
 
-  function updateTopNavIcons() {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) {
-        // Send message and handle potential error
-        chrome.tabs
-          .sendMessage(tabs[0].id, {
-            type: "updateTopNavIcons",
-            grayscale: topNavIconsGrayscale.checked,
-          })
-          .catch((error) => {
-            console.log(
-              "Could not update top nav icons - tab may not be ready"
-            );
-          });
-      }
-    });
-  }
-
-  // Add this function near the other background update functions
-  function updateTopNavBackground() {
-    const validOpacity = validateOpacity(topNavOpacity.value);
-    topNavOpacity.value = validOpacity; // Update input with validated value
-    const rgba = hexToRgba(topNavColorPicker.value, validOpacity);
-    chrome.storage.sync.set({
-      topNavBackground: topNavColorPicker.value,
-      topNavOpacity: validOpacity,
-      topNavBackgroundRgba: rgba,
-    });
-  }
-
-  // Add event listeners for top nav background updates
-  topNavColorPicker.addEventListener("change", updateTopNavBackground);
-  topNavOpacity.addEventListener("change", updateTopNavBackground);
-  topNavOpacity.addEventListener("input", updateTopNavBackground);
-
   // Tab navigation
   const navButtons = document.querySelectorAll(".nav-item");
   const sections = document.querySelectorAll(".settings-section");
@@ -846,4 +837,45 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   });
+
+  function updateBackground(type, color, opacity) {
+    const validOpacity = validateOpacity(opacity);
+    const rgba = hexToRgba(color, validOpacity);
+
+    chrome.storage.sync.set({
+      [`${type}Background`]: color,
+      [`${type}Opacity`]: validOpacity,
+      [`${type}BackgroundRgba`]: rgba,
+    });
+  }
+
+  function setupOpacityControl(opacityInput, colorPicker, type) {
+    // Add color picker handler
+    colorPicker.addEventListener("change", function () {
+      updateBackground(type, this.value, opacityInput.value);
+    });
+
+    // Add input handler for live updates
+    opacityInput.addEventListener("input", function () {
+      if (this.value === "" || (!isNaN(this.value) && this.value >= 0)) {
+        updateBackground(type, colorPicker.value, this.value);
+      }
+    });
+
+    // Add blur handler for validation
+    opacityInput.addEventListener("blur", function () {
+      if (this.value === "" || isNaN(this.value)) {
+        this.value = "100";
+      } else {
+        const validOpacity = validateOpacity(this.value);
+        this.value = validOpacity;
+      }
+      updateBackground(type, colorPicker.value, this.value);
+    });
+  }
+
+  // Set up all opacity controls
+  setupOpacityControl(navOpacity, navColorPicker, "nav");
+  setupOpacityControl(topNavOpacity, topNavColorPicker, "topNav");
+  setupOpacityControl(inputOpacity, inputColorPicker, "input");
 });

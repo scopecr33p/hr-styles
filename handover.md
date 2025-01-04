@@ -381,3 +381,62 @@ Features should use the FeatureManager for:
 - Cross-feature communication
 
 Avoid creating module-level dependencies between features. Instead, use the FeatureManager's event system for cross-feature communication.
+
+### Opacity Control System
+
+#### Implementation Strategy
+The opacity control system uses a unified approach for handling opacity inputs across different UI elements (navigation, top navigation, input backgrounds).
+
+#### Core Components
+- Validation function ensuring values between 1-100
+- Default value handling (100% if invalid)
+- Real-time updates with storage sync
+- Blur event validation for user input
+- Integrated color and opacity management
+
+#### Technical Implementation
+Each opacity control consists of:
+- Input element for opacity value
+- Associated color picker
+- Update function for storage and style application
+
+#### Adding New Opacity Controls
+To add a new opacity control:
+
+1. Create HTML elements:
+   - Input for opacity (type="number")
+   - Color picker input
+
+2. Use setupOpacityControl helper:
+   <----CODE START---->
+   setupOpacityControl(opacityInput, colorPicker, "storageKey");
+   <----CODE END---->
+
+3. Add storage keys:
+   - {type}Background: color value
+   - {type}Opacity: opacity value
+   - {type}BackgroundRgba: computed rgba value
+
+#### Validation Rules
+- Values must be between 1 and 100
+- Empty inputs default to 100
+- Non-numeric inputs are converted to 100
+- Real-time validation on input
+- Final validation on blur
+
+#### Storage Pattern
+Storage uses a consistent pattern:
+<----CODE START---->
+{
+  "navBackground": "#ffffff",
+  "navOpacity": 100,
+  "navBackgroundRgba": "rgba(255, 255, 255, 1)"
+}
+<----CODE END---->
+
+#### Best Practices
+- Always use setupOpacityControl for consistency
+- Maintain the storage pattern for new implementations
+- Include both immediate and blur validation
+- Use the hexToRgba helper for color conversion
+- Follow the existing update pattern for style application
