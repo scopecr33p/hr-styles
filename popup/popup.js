@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const topNavColorPicker = document.getElementById("topNavBackground");
   const topNavOpacity = document.getElementById("topNavOpacity");
   const topNavIconsGrayscale = document.getElementById("topNavIconsGrayscale");
+  const inputBorderRadius = document.getElementById("inputBorderRadius");
 
   // Load saved override state
   chrome.storage.local.get(["overrideAllBackgrounds"], function (result) {
@@ -537,7 +538,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Create reset manager instance using global class
+  // Create reset manager instance with all required elements
   const resetManager = new ResetManager({
     bannerPreview,
     bannerPreviewContainer,
@@ -546,6 +547,7 @@ document.addEventListener("DOMContentLoaded", function () {
     navOpacity,
     inputColorPicker,
     inputOpacity,
+    inputBorderRadius,
     topNavColorPicker,
     topNavOpacity,
     topNavIconsGrayscale,
@@ -555,21 +557,24 @@ document.addEventListener("DOMContentLoaded", function () {
     subtitleAlign,
     subtitleTransform,
     subtitleFont,
+    italicToggle,
+    underlineToggle,
+    strikeToggle,
     h1Size,
     h1Weight,
     h1Color,
     h1Align,
     h1Transform,
     h1Font,
-    italicToggle,
-    underlineToggle,
-    strikeToggle,
     h1ItalicToggle,
     h1UnderlineToggle,
     h1StrikeToggle,
-    updateNavBackground,
-    updateInputBackground,
-    updateTopNavBackground,
+    updateNavBackground: () =>
+      updateBackground("nav", navColorPicker.value, navOpacity.value),
+    updateInputBackground: () =>
+      updateBackground("input", inputColorPicker.value, inputOpacity.value),
+    updateTopNavBackground: () =>
+      updateBackground("topNav", topNavColorPicker.value, topNavOpacity.value),
     updateTextElementStyles,
   });
 
@@ -878,4 +883,40 @@ document.addEventListener("DOMContentLoaded", function () {
   setupOpacityControl(navOpacity, navColorPicker, "nav");
   setupOpacityControl(topNavOpacity, topNavColorPicker, "topNav");
   setupOpacityControl(inputOpacity, inputColorPicker, "input");
+
+  function validateBorderRadius(value) {
+    // First check if value is explicitly 0 (string or number)
+    if (value === 0 || value === "0") {
+      return 0;
+    }
+    // Parse the value, default to 4 if invalid
+    const radius = parseInt(value) || 4;
+    // Clamp between 0 and 20
+    return Math.min(Math.max(radius, 0), 20);
+  }
+
+  // Load saved border radius
+  chrome.storage.sync.get(["inputBorderRadius"], (result) => {
+    inputBorderRadius.value =
+      result.inputBorderRadius !== undefined ? result.inputBorderRadius : 4;
+  });
+
+  // Handle border radius changes
+  inputBorderRadius.addEventListener("input", function () {
+    // Allow empty string (while typing) or valid numbers including 0
+    if (this.value === "" || (!isNaN(this.value) && this.value >= 0)) {
+      const validRadius = validateBorderRadius(this.value);
+      chrome.storage.sync.set({ inputBorderRadius: validRadius });
+    }
+  });
+
+  inputBorderRadius.addEventListener("blur", function () {
+    // On blur, ensure we have a valid number
+    if (this.value === "" || isNaN(this.value)) {
+      this.value = "4";
+    }
+    const validRadius = validateBorderRadius(this.value);
+    this.value = validRadius;
+    chrome.storage.sync.set({ inputBorderRadius: validRadius });
+  });
 });

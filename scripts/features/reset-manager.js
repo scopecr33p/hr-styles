@@ -45,8 +45,6 @@ class ResetManager {
   resetNavigation() {
     this.elements.navColorPicker.value = "#eaf0f2";
     this.elements.navOpacity.value = "100";
-    this.elements.inputColorPicker.value = "#c5d8de";
-    this.elements.inputOpacity.value = "100";
   }
 
   resetTopNav() {
@@ -84,6 +82,12 @@ class ResetManager {
     ].forEach((toggle) => toggle.classList.remove("active"));
   }
 
+  resetInputs() {
+    this.elements.inputColorPicker.value = "#c5d8de";
+    this.elements.inputOpacity.value = "100";
+    this.elements.inputBorderRadius.value = "4";
+  }
+
   resetAll() {
     // Clear storage
     chrome.storage.sync.clear();
@@ -94,6 +98,7 @@ class ResetManager {
     this.resetNavigation();
     this.resetTopNav();
     this.resetTextStyles();
+    this.resetInputs();
 
     // Reset accordion states
     chrome.storage.local.set({ accordionStates: {} });

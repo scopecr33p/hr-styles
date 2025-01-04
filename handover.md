@@ -71,7 +71,7 @@ Core styling system handling global UI elements.
 
 #### Currently Supports:
 - Navigation background color/opacity
-- Input field background color/opacity
+- Input field background color/opacity/border radius
 - Top navigation background color/opacity
 - Top navigation icons grayscale toggle
   - Applies grayscale filter to icons in both v2 and non-v2 navigation bars
@@ -440,3 +440,118 @@ Storage uses a consistent pattern:
 - Include both immediate and blur validation
 - Use the hexToRgba helper for color conversion
 - Follow the existing update pattern for style application
+
+### Input Field Customization
+
+#### Implementation Strategy
+- Direct CSS application for input field styles
+- Real-time style updates
+- Storage sync for preferences
+- Reusable control patterns
+
+#### Currently Supports
+- Background color/opacity
+- Border radius (0-20px)
+  - Applies to all form inputs, textareas and selects
+  - Real-time updates
+  - Persists settings across sessions
+  - Validates input range
+
+#### Technical Implementation
+- Direct CSS application rather than variables for border properties
+- Selective targeting of input elements
+- Consistent validation patterns
+- Integrated with reset functionality
+
+#### Adding New Input Controls
+To add a new input control (e.g. border width):
+
+1. Add HTML elements in popup.html:
+   - number-control class for consistent styling
+   - Appropriate min/max/default values
+   - Clear description
+
+2. Add validation function following pattern:
+   <----CODE START---->
+   function validateProperty(value) {
+     const valid = value === "0" ? 0 : parseInt(value) || defaultValue;
+     return Math.min(Math.max(valid, minValue), maxValue);
+   }
+   <----CODE END---->
+
+3. Add storage handling:
+   - Use chrome.storage.sync for settings
+   - Follow naming convention: input{PropertyName}
+   - Include default value handling
+
+4. Update StyleCustomizationFeature:
+   - Add property to updateCustomStyle method
+   - Include in storage change listener
+   - Add to updateStyles method
+
+5. Add to ResetManager:
+   - Pass element to constructor
+   - Add default value reset
+   - Include in resetInputs method
+
+#### Storage Pattern
+{
+  "inputBorderRadius": 4,
+  "inputBackground": "#c5d8de",
+  "inputOpacity": 100,
+  "inputBackgroundRgba": "rgba(197, 216, 222, 1)"
+}
+
+#### Best Practices
+- Always validate numeric inputs
+- Include both immediate and blur validation
+- Use consistent class names for styling
+- Follow existing reset patterns
+- Maintain backwards compatibility
+
+### Border Radius Implementation Pattern
+
+#### Overview
+The border radius implementation serves as the template for adding similar direct-style properties to input fields and other elements.
+
+#### Implementation Strategy
+1. Direct CSS application (not using CSS variables)
+2. Immediate validation and updates
+3. Sync storage for persistence
+4. Integrated reset functionality
+
+#### Adding Border Radius Controls
+To implement border radius for new elements:
+
+1. HTML Structure:
+   <----CODE START---->
+   <div class="number-control">
+     <input type="number" id="{element}BorderRadius" min="0" max="20" value="4" />
+     <span class="unit">px</span>
+   </div>
+   <----CODE END---->
+
+2. Validation Pattern:
+   <----CODE START---->
+   function validateBorderRadius(value) {
+     const radius = value === "0" ? 0 : parseInt(value) || 4;
+     return Math.min(Math.max(radius, 0), 20);
+   }
+   <----CODE END---->
+
+3. Style Manager Integration:
+   <----CODE START---->
+   if (type === "{element}Border") {
+     css = `selector { border-radius: ${value} !important; }`;
+   }
+   <----CODE END---->
+
+4. Storage Implementation:
+   - Key: {element}BorderRadius
+   - Value: number (0-20)
+   - Use chrome.storage.sync
+
+5. Reset Integration:
+   - Add element to ResetManager constructor
+   - Include in reset method
+   - Set default value (usually 4px)

@@ -2,13 +2,27 @@ class StyleCustomizationFeature {
   static init() {
     // Load initial styles from storage
     chrome.storage.sync.get(
-      ["navBackgroundRgba", "inputBackgroundRgba", "topNavBackgroundRgba"],
+      [
+        "navBackgroundRgba",
+        "inputBackgroundRgba",
+        "topNavBackgroundRgba",
+        "navBackgroundRgba",
+        "inputBackgroundRgba",
+        "topNavBackgroundRgba",
+        "inputBorderRadius",
+      ],
       (result) => {
         if (result.navBackgroundRgba) {
           this.updateCustomStyle("nav", result.navBackgroundRgba);
         }
         if (result.inputBackgroundRgba) {
           this.updateCustomStyle("input", result.inputBackgroundRgba);
+        }
+        if (result.inputBorderRadius) {
+          this.updateCustomStyle(
+            "inputBorder",
+            `${result.inputBorderRadius}px`
+          );
         }
         if (result.topNavBackgroundRgba) {
           this.updateCustomStyle("topNav", result.topNavBackgroundRgba);
@@ -18,6 +32,12 @@ class StyleCustomizationFeature {
 
     // Listen for storage changes
     chrome.storage.sync.onChanged.addListener((changes) => {
+      if (changes.inputBorderRadius) {
+        this.updateCustomStyle(
+          "inputBorder",
+          `${changes.inputBorderRadius.newValue}px`
+        );
+      }
       if (changes.navBackgroundRgba) {
         this.updateCustomStyle("nav", changes.navBackgroundRgba.newValue);
       }
@@ -42,7 +62,15 @@ class StyleCustomizationFeature {
 
   static updateCustomStyle(type, value) {
     let css;
-    if (type === "topNavIcons") {
+    if (type === "inputBorder") {
+      css = `
+        html body input:not([type="hidden"]):not([name="edit_name"]),
+        html body textarea,
+        html body select {
+          border-radius: ${value} !important;
+        }
+      `;
+    } else if (type === "topNavIcons") {
       css = `img.icon24, .header-menu img[class*='icon'] { 
         filter: ${value} !important;
         -webkit-filter: ${value} !important;
@@ -60,13 +88,24 @@ class StyleCustomizationFeature {
 
   static updateStyles() {
     chrome.storage.sync.get(
-      ["navBackgroundRgba", "inputBackgroundRgba", "topNavBackgroundRgba"],
+      [
+        "navBackgroundRgba",
+        "inputBackgroundRgba",
+        "topNavBackgroundRgba",
+        "inputBorderRadius",
+      ],
       (result) => {
         if (result.navBackgroundRgba) {
           this.updateCustomStyle("nav", result.navBackgroundRgba);
         }
         if (result.inputBackgroundRgba) {
           this.updateCustomStyle("input", result.inputBackgroundRgba);
+        }
+        if (result.inputBorderRadius) {
+          this.updateCustomStyle(
+            "inputBorder",
+            `${result.inputBorderRadius}px`
+          );
         }
         if (result.topNavBackgroundRgba) {
           this.updateCustomStyle("topNav", result.topNavBackgroundRgba);
