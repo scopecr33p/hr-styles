@@ -56,6 +56,19 @@
     }
 
     await featureManager.initialize();
+
+    // Set up storage listener for top nav icons
+    chrome.storage.sync.onChanged.addListener((changes) => {
+      if (changes.topNavIconsGrayscale) {
+        const filterValue = changes.topNavIconsGrayscale.newValue
+          ? "grayscale(100%)"
+          : "none";
+        const icons = document.querySelectorAll(".icon24, .header-menu img");
+        icons.forEach((icon) => {
+          icon.style.filter = filterValue;
+        });
+      }
+    });
   };
 
   // Run initialization
@@ -89,11 +102,18 @@
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "updateTopNavIcons") {
-      const filterValue = message.grayscale ? "grayscale(100%)" : "none";
-      const icons = document.querySelectorAll(".icon24, .header-menu img");
-      icons.forEach((icon) => {
-        icon.style.filter = filterValue;
-      });
+      try {
+        const filterValue = message.grayscale ? "grayscale(100%)" : "none";
+        const icons = document.querySelectorAll(".icon24, .header-menu img");
+        icons.forEach((icon) => {
+          icon.style.filter = filterValue;
+        });
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error("Error updating top nav icons:", error);
+        sendResponse({ success: false, error: error.message });
+      }
+      return true;
     }
   });
 

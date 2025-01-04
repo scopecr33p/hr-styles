@@ -685,7 +685,43 @@ document.addEventListener("DOMContentLoaded", function () {
     toggles.forEach((button) => {
       button.addEventListener("click", function () {
         this.classList.toggle("active");
-        updateTextElementStyles(elementType);
+
+        const elements = {
+          subtitle: {
+            italic: italicToggle,
+            underline: underlineToggle,
+            strike: strikeToggle,
+          },
+          h1: {
+            italic: h1ItalicToggle,
+            underline: h1UnderlineToggle,
+            strike: h1StrikeToggle,
+          },
+        };
+
+        const element = elements[elementType];
+
+        // Save to storage and update styles
+        chrome.storage.local.set(
+          {
+            [`${elementType}Italic`]:
+              element.italic.classList.contains("active"),
+            [`${elementType}Underline`]:
+              element.underline.classList.contains("active"),
+            [`${elementType}Strike`]:
+              element.strike.classList.contains("active"),
+          },
+          () => {
+            // After storage is updated, trigger style update
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs[0]) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                  type: "updateTextStyles",
+                });
+              }
+            });
+          }
+        );
       });
     });
   }
@@ -734,12 +770,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle toggle
   topNavIconsGrayscale.addEventListener("change", function () {
+    // First update storage
     chrome.storage.sync.set(
       {
         topNavIconsGrayscale: this.checked,
       },
       () => {
-        updateTopNavIcons();
+        // Storage callback - no need to send message directly
+        // The content script listens for storage changes
       }
     );
   });
@@ -747,10 +785,17 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateTopNavIcons() {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: "updateTopNavIcons",
-          grayscale: topNavIconsGrayscale.checked,
-        });
+        // Send message and handle potential error
+        chrome.tabs
+          .sendMessage(tabs[0].id, {
+            type: "updateTopNavIcons",
+            grayscale: topNavIconsGrayscale.checked,
+          })
+          .catch((error) => {
+            console.log(
+              "Could not update top nav icons - tab may not be ready"
+            );
+          });
       }
     });
   }

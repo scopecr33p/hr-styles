@@ -213,6 +213,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 <----CODE END---->
 
+### Message Handling Best Practices
+- Always return true in message listeners to keep channel open
+- Use synchronous storage -> message pattern for UI updates
+- Avoid async/await with message handling
+- Follow established pattern:
+  1. UI change triggers storage update
+  2. Storage callback sends message
+  3. Content script handles message and applies changes
+  4. Content script returns success/failure
+
+Example pattern:
+<----CODE START---->
+// UI handler
+element.addEventListener("change", function() {
+  chrome.storage.local.set({ key: value }, () => {
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "updateType" });
+      }
+    });
+  });
+});
+
+// Content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Handle message
+  sendResponse({ success: true });
+  return true;
+});
+<----CODE END---->
+
 ### Storage Architecture
 Dual storage approach:
 - **chrome.storage.sync:**
