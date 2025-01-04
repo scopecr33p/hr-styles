@@ -167,13 +167,14 @@
               type="number" 
               id="subtitleSize" 
               data-text-type="subtitle"
+              data-style-prop="size"
               value="14"
               title="Size (px)"
             />
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Weight</span>
-              <select id="subtitleWeight">
+              <select id="subtitleWeight" data-text-type="subtitle" data-style-prop="weight">
                 <option value="">Default</option>
                 <option value="400">Normal</option>
                 <option value="500">Medium</option>
@@ -186,26 +187,28 @@
               <input 
                 type="color" 
                 id="subtitleColor" 
+                data-text-type="subtitle"
+                data-style-prop="color"
                 value="#333333"
               />
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Style</span>
               <div class="text-style-toggles">
-                <button type="button" id="italicToggle" class="style-toggle" title="Italic">
+                <button type="button" id="italicToggle" class="style-toggle" data-text-type="subtitle" data-style-prop="italic" title="Italic">
                   <i>I</i>
                 </button>
-                <button type="button" id="underlineToggle" class="style-toggle" title="Underline">
+                <button type="button" id="underlineToggle" class="style-toggle" data-text-type="subtitle" data-style-prop="underline" title="Underline">
                   <u>U</u>
                 </button>
-                <button type="button" id="strikeToggle" class="style-toggle" title="Strikethrough">
+                <button type="button" id="strikeToggle" class="style-toggle" data-text-type="subtitle" data-style-prop="strike" title="Strikethrough">
                   S
                 </button>
               </div>
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Align</span>
-              <select id="subtitleAlign">
+              <select id="subtitleAlign" data-text-type="subtitle" data-style-prop="align">
                 <option value="">Default</option>
                 <option value="left">Left</option>
                 <option value="center">Center</option>
@@ -214,7 +217,7 @@
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Transform</span>
-              <select id="subtitleTransform">
+              <select id="subtitleTransform" data-text-type="subtitle" data-style-prop="transform">
                 <option value="">Default</option>
                 <option value="none">Normal</option>
                 <option value="capitalize">Capitalize</option>
@@ -225,7 +228,7 @@
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Typeface</span>
-              <select id="subtitleFont">
+              <select id="subtitleFont" data-text-type="subtitle" data-style-prop="font">
                 <option value="">Default</option>
               </select>
             </div>
@@ -258,7 +261,7 @@
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Weight</span>
-              <select id="h1Weight">
+              <select id="h1Weight" data-text-type="h1" data-style-prop="weight">
                 <option value="">Default</option>
                 <option value="400">Normal</option>
                 <option value="500">Medium</option>
@@ -271,26 +274,28 @@
               <input 
                 type="color" 
                 id="h1Color" 
+                data-text-type="h1"
+                data-style-prop="color"
                 value="#333333"
               />
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Style</span>
               <div class="text-style-toggles">
-                <button type="button" id="h1ItalicToggle" class="style-toggle" title="Italic">
+                <button type="button" id="h1ItalicToggle" class="style-toggle" data-text-type="h1" data-style-prop="italic" title="Italic">
                   <i>I</i>
                 </button>
-                <button type="button" id="h1UnderlineToggle" class="style-toggle" title="Underline">
+                <button type="button" id="h1UnderlineToggle" class="style-toggle" data-text-type="h1" data-style-prop="underline" title="Underline">
                   <u>U</u>
                 </button>
-                <button type="button" id="h1StrikeToggle" class="style-toggle" title="Strikethrough">
+                <button type="button" id="h1StrikeToggle" class="style-toggle" data-text-type="h1" data-style-prop="strike" title="Strikethrough">
                   S
                 </button>
               </div>
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Align</span>
-              <select id="h1Align">
+              <select id="h1Align" data-text-type="h1" data-style-prop="align">
                 <option value="">Default</option>
                 <option value="left">Left</option>
                 <option value="center">Center</option>
@@ -299,7 +304,7 @@
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Transform</span>
-              <select id="h1Transform">
+              <select id="h1Transform" data-text-type="h1" data-style-prop="transform">
                 <option value="">Default</option>
                 <option value="none">Normal</option>
                 <option value="capitalize">Capitalize</option>
@@ -310,7 +315,7 @@
             </div>
             <div class="text-customization-field">
               <span class="text-customization-label">Typeface</span>
-              <select id="h1Font">
+              <select id="h1Font" data-text-type="h1" data-style-prop="font">
                 <option value="">Default</option>
               </select>
             </div>

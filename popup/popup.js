@@ -102,6 +102,29 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Load saved text style states
+  chrome.storage.local.get(
+    [
+      "subtitleItalic",
+      "subtitleUnderline",
+      "subtitleStrike",
+      "h1Italic",
+      "h1Underline",
+      "h1Strike",
+    ],
+    function (result) {
+      // Set subtitle toggle states
+      if (result.subtitleItalic) italicToggle.classList.add("active");
+      if (result.subtitleUnderline) underlineToggle.classList.add("active");
+      if (result.subtitleStrike) strikeToggle.classList.add("active");
+
+      // Set h1 toggle states
+      if (result.h1Italic) h1ItalicToggle.classList.add("active");
+      if (result.h1Underline) h1UnderlineToggle.classList.add("active");
+      if (result.h1Strike) h1StrikeToggle.classList.add("active");
+    }
+  );
+
   // Load saved states
   Promise.all([
     // Load sync storage settings
@@ -321,50 +344,28 @@ document.addEventListener("DOMContentLoaded", function () {
   inputOpacity.addEventListener("change", updateInputBackground);
   inputOpacity.addEventListener("input", updateInputBackground);
 
-  // Handle subtitle style changes
-  function updateSubtitleStyles() {
-    if (document.activeElement === subtitleSize) {
-      const validSize = validateTextSize(
-        subtitleSize.value,
-        TEXT_SIZE_CONFIG.defaults.subtitle
-      );
-      subtitleSize.value = validSize;
-    }
+  // Update event listeners for subtitle
+  [
+    [subtitleSize, "change"],
+    [subtitleColor, "input"],
+    [subtitleWeight, "change"],
+    [subtitleAlign, "change"],
+    [subtitleTransform, "change"],
+    [subtitleFont, "change"],
+  ].forEach(([element, event]) => {
+    element.addEventListener(event, () => updateTextElementStyles("subtitle"));
+  });
 
-    chrome.storage.local.set({
-      subtitleSize: subtitleSize.value,
-      subtitleWeight: subtitleWeight.value,
-      subtitleColor: subtitleColor.value,
-      subtitleAlign: subtitleAlign.value,
-      subtitleTransform: subtitleTransform.value,
-      subtitleFont: subtitleFont.value,
-    });
-  }
-
-  // Update event listeners
-  subtitleSize.addEventListener("change", updateSubtitleStyles);
-  subtitleColor.addEventListener("input", updateSubtitleStyles);
-  subtitleWeight.addEventListener("change", updateSubtitleStyles);
-  subtitleAlign.addEventListener("change", updateSubtitleStyles);
-  subtitleTransform.addEventListener("change", updateSubtitleStyles);
-  subtitleFont.addEventListener("change", updateSubtitleStyles);
-
-  function updateTextStyles() {
-    const styles = {
-      textItalic: italicToggle.classList.contains("active"),
-      textUnderline: underlineToggle.classList.contains("active"),
-      textStrike: strikeToggle.classList.contains("active"),
-    };
-
-    chrome.storage.local.set(styles);
-  }
-
-  // Add toggle handlers
-  [italicToggle, underlineToggle, strikeToggle].forEach((button) => {
-    button.addEventListener("click", function () {
-      this.classList.toggle("active");
-      updateTextStyles();
-    });
+  // Update event listeners for h1
+  [
+    [h1Size, "change"],
+    [h1Color, "input"],
+    [h1Weight, "change"],
+    [h1Align, "change"],
+    [h1Transform, "change"],
+    [h1Font, "change"],
+  ].forEach(([element, event]) => {
+    element.addEventListener(event, () => updateTextElementStyles("h1"));
   });
 
   function updateFontDropdown() {
@@ -545,31 +546,52 @@ document.addEventListener("DOMContentLoaded", function () {
     overrideToggle.checked = false;
     topNavColorPicker.value = "#081b28";
     topNavOpacity.value = "100";
+    topNavIconsGrayscale.checked = false;
 
     // Reset text customization to website defaults
-    subtitleSize.value = "14";
-    subtitleWeight.value = ""; // Set to empty string for default
+    subtitleSize.value = TEXT_SIZE_CONFIG.defaults.subtitle;
+    subtitleWeight.value = "";
     subtitleColor.value = "#333333";
     subtitleAlign.value = "";
     subtitleTransform.value = "";
     subtitleFont.value = "";
+    h1Size.value = TEXT_SIZE_CONFIG.defaults.h1;
+    h1Weight.value = "";
+    h1Color.value = "#333333";
+    h1Align.value = "";
+    h1Transform.value = "";
+    h1Font.value = "";
 
     // Reset text style toggles
-    italicToggle.classList.remove("active");
-    underlineToggle.classList.remove("active");
-    strikeToggle.classList.remove("active");
+    [
+      italicToggle,
+      underlineToggle,
+      strikeToggle,
+      h1ItalicToggle,
+      h1UnderlineToggle,
+      h1StrikeToggle,
+    ].forEach((toggle) => {
+      toggle.classList.remove("active");
+    });
 
     // Reset banner
     bannerPreview.src = "";
     bannerPreviewContainer.style.display = "none";
     bannerInput.value = "";
 
+    // Reset font previews
+    primaryPreview.textContent = "No font selected";
+    primaryPreview.classList.remove("loaded", "font-loading");
+    secondaryPreview.textContent = "No font selected";
+    secondaryPreview.classList.remove("loaded", "font-loading");
+
     // Update all styles
     updateNavBackground();
     updateInputBackground();
-    updateSubtitleStyles();
-    updateTextStyles();
     updateTopNavBackground();
+    updateTextElementStyles("subtitle");
+    updateTextElementStyles("h1");
+    updateFontDropdown();
 
     // Close modal
     modal.style.display = "none";
@@ -589,51 +611,56 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  function updateH1Styles() {
-    if (document.activeElement === h1Size) {
-      const validSize = validateTextSize(
-        h1Size.value,
-        TEXT_SIZE_CONFIG.defaults.h1
-      );
-      h1Size.value = validSize;
-    }
-
-    chrome.storage.local.set(
-      {
-        h1Size: h1Size.value,
-        h1Weight: h1Weight.value,
-        h1Color: h1Color.value,
-        h1Align: h1Align.value,
-        h1Transform: h1Transform.value,
-        h1Font: h1Font.value,
+  function updateTextElementStyles(elementType) {
+    const elements = {
+      subtitle: {
+        size: subtitleSize,
+        weight: subtitleWeight,
+        color: subtitleColor,
+        align: subtitleAlign,
+        transform: subtitleTransform,
+        font: subtitleFont,
+        italic: italicToggle,
+        underline: underlineToggle,
+        strike: strikeToggle,
       },
-      () => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]) {
-            chrome.tabs.sendMessage(tabs[0].id, {
-              type: "updateTextStyles",
-            });
-          }
-        });
-      }
-    );
-  }
-
-  // Add event listeners
-  h1Size.addEventListener("change", updateH1Styles);
-  h1Color.addEventListener("input", updateH1Styles);
-  h1Weight.addEventListener("change", updateH1Styles);
-  h1Align.addEventListener("change", updateH1Styles);
-  h1Transform.addEventListener("change", updateH1Styles);
-  h1Font.addEventListener("change", updateH1Styles);
-
-  function updateH1TextStyles() {
-    const styles = {
-      h1Italic: h1ItalicToggle.classList.contains("active"),
-      h1Underline: h1UnderlineToggle.classList.contains("active"),
-      h1Strike: h1StrikeToggle.classList.contains("active"),
+      h1: {
+        size: h1Size,
+        weight: h1Weight,
+        color: h1Color,
+        align: h1Align,
+        transform: h1Transform,
+        font: h1Font,
+        italic: h1ItalicToggle,
+        underline: h1UnderlineToggle,
+        strike: h1StrikeToggle,
+      },
     };
 
+    const element = elements[elementType];
+
+    // Validate size if it's the active element
+    if (document.activeElement === element.size) {
+      const defaultSize = TEXT_SIZE_CONFIG.defaults[elementType];
+      const validSize = validateTextSize(element.size.value, defaultSize);
+      element.size.value = validSize;
+    }
+
+    // Build storage object
+    const styles = {
+      [`${elementType}Size`]: element.size.value,
+      [`${elementType}Weight`]: element.weight.value,
+      [`${elementType}Color`]: element.color.value,
+      [`${elementType}Align`]: element.align.value,
+      [`${elementType}Transform`]: element.transform.value,
+      [`${elementType}Font`]: element.font.value,
+      [`${elementType}Italic`]: element.italic.classList.contains("active"),
+      [`${elementType}Underline`]:
+        element.underline.classList.contains("active"),
+      [`${elementType}Strike`]: element.strike.classList.contains("active"),
+    };
+
+    // Save to storage and update styles
     chrome.storage.local.set(styles, () => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]) {
@@ -645,64 +672,28 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Add toggle handlers for h1
-  [h1ItalicToggle, h1UnderlineToggle, h1StrikeToggle].forEach((button) => {
-    button.addEventListener("click", function () {
-      this.classList.toggle("active");
-      updateH1TextStyles();
-    });
-  });
-
-  // Helper function to create UI elements
-  function createTextCustomizationUI(elementName, container) {
-    const element = TextCustomizationFeature.elements.get(elementName);
-    if (!element) return;
-
-    // Create fields based on the element's properties
-    element.getStyleProperties().forEach((prop) => {
-      const field = createCustomizationField(elementName, prop);
-      container.appendChild(field);
+  // Update text style toggle handlers to use the helper
+  function addTextStyleToggleHandlers(elementType, toggles) {
+    toggles.forEach((button) => {
+      button.addEventListener("click", function () {
+        this.classList.toggle("active");
+        updateTextElementStyles(elementType);
+      });
     });
   }
 
-  // Add event listeners dynamically
-  function addTextElementListeners(elementName) {
-    const element = TextCustomizationFeature.elements.get(elementName);
-    if (!element) return;
+  // Update toggle handlers
+  addTextStyleToggleHandlers("subtitle", [
+    italicToggle,
+    underlineToggle,
+    strikeToggle,
+  ]);
 
-    element.getStyleProperties().forEach((prop) => {
-      const elementId = `${elementName}${prop
-        .charAt(0)
-        .toUpperCase()}${prop.slice(1)}`;
-      const input = document.getElementById(elementId);
-      if (!input) return;
-
-      if (prop === "italic" || prop === "underline" || prop === "strike") {
-        input.addEventListener("click", function () {
-          this.classList.toggle("active");
-          updateElementStyles(elementName);
-        });
-      } else {
-        input.addEventListener(prop === "color" ? "input" : "change", () => {
-          updateElementStyles(elementName);
-        });
-      }
-    });
-  }
-
-  // Add this function with the other update functions
-  function updateTopNavBackground() {
-    const rgba = hexToRgba(topNavColorPicker.value, topNavOpacity.value);
-    chrome.storage.sync.set({
-      topNavBackground: topNavColorPicker.value,
-      topNavOpacity: topNavOpacity.value,
-      topNavBackgroundRgba: rgba,
-    });
-  }
-
-  // Add these event listeners with the other listeners
-  topNavColorPicker.addEventListener("change", updateTopNavBackground);
-  topNavOpacity.addEventListener("input", updateTopNavBackground);
+  addTextStyleToggleHandlers("h1", [
+    h1ItalicToggle,
+    h1UnderlineToggle,
+    h1StrikeToggle,
+  ]);
 
   function validateTextSize(value, defaultValue) {
     const size = parseInt(value) || defaultValue;
@@ -716,7 +707,7 @@ document.addEventListener("DOMContentLoaded", function () {
       TEXT_SIZE_CONFIG.defaults.subtitle
     );
     this.value = validSize;
-    updateSubtitleStyles();
+    updateTextElementStyles("subtitle");
   });
 
   h1Size.addEventListener("blur", function () {
@@ -725,7 +716,7 @@ document.addEventListener("DOMContentLoaded", function () {
       TEXT_SIZE_CONFIG.defaults.h1
     );
     this.value = validSize;
-    updateH1Styles();
+    updateTextElementStyles("h1");
   });
 
   // Load saved state
@@ -751,4 +742,19 @@ document.addEventListener("DOMContentLoaded", function () {
       : "none";
     StyleCustomizationFeature.updateCustomStyle("topNavIcons", filterValue);
   }
+
+  // Add this function near the other background update functions
+  function updateTopNavBackground() {
+    const rgba = hexToRgba(topNavColorPicker.value, topNavOpacity.value);
+    chrome.storage.sync.set({
+      topNavBackground: topNavColorPicker.value,
+      topNavOpacity: topNavOpacity.value,
+      topNavBackgroundRgba: rgba,
+    });
+  }
+
+  // Add event listeners for top nav background updates
+  topNavColorPicker.addEventListener("change", updateTopNavBackground);
+  topNavOpacity.addEventListener("change", updateTopNavBackground);
+  topNavOpacity.addEventListener("input", updateTopNavBackground);
 });

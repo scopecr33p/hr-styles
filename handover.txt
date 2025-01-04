@@ -73,6 +73,7 @@ Implementation Strategy:
 - TextElement class for encapsulated handling
 - Configuration-based element definition
 - Unified storage and style management
+- Shared helper functions for consistent behavior
   ```javascript:scripts/features/text-customization.js
   startLine: 1
   endLine: 68
@@ -87,7 +88,36 @@ Features:
   - Alignment
   - Text transformation
   - Font family
-  - Style toggles
+  - Style toggles (italic, underline, strikethrough)
+
+Technical Implementation:
+- Unified helper function for all text elements
+- Data attribute-driven UI components
+- Persistent state management using chrome.storage.local
+- Real-time style updates across tabs
+- Automatic state restoration on popup load
+- Validation for size inputs (min: 8px, max: 64px)
+
+Storage Pattern:
+```javascript
+{
+  [`${elementType}Size`]: element.size.value,
+  [`${elementType}Weight`]: element.weight.value,
+  [`${elementType}Color`]: element.color.value,
+  [`${elementType}Align`]: element.align.value,
+  [`${elementType}Transform`]: element.transform.value,
+  [`${elementType}Font`]: element.font.value,
+  [`${elementType}Italic`]: element.italic.classList.contains("active"),
+  [`${elementType}Underline`]: element.underline.classList.contains("active"),
+  [`${elementType}Strike`]: element.strike.classList.contains("active")
+}
+```
+
+UI Components:
+- Data attributes for element type and style property identification
+- Consistent toggle behavior across all text elements
+- Shared event handlers for similar components
+- Automatic state persistence
 
 ### Font Management
 Custom font handling system.
