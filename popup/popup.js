@@ -602,6 +602,14 @@ document.addEventListener("DOMContentLoaded", function () {
         chrome.tabs.reload(tab.id);
       });
     });
+
+    // Reset accordion states
+    await chrome.storage.local.set({ accordionStates: {} });
+
+    // Remove collapsed class from all groups
+    document.querySelectorAll(".settings-group").forEach((group) => {
+      group.classList.remove("collapsed");
+    });
   });
 
   // Close modal when clicking outside
@@ -802,6 +810,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Save active tab state
       chrome.storage.local.set({ activeTab: targetSection });
+    });
+  });
+
+  // Wrap settings-group content and handle state
+  document.querySelectorAll(".settings-group").forEach((group) => {
+    // Skip if already processed
+    if (group.querySelector(".settings-group-content")) return;
+
+    const heading = group.querySelector("h2");
+    const groupId = heading.textContent
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+    const content = document.createElement("div");
+    content.className = "settings-group-content";
+
+    // Move all elements after the heading into the content div
+    while (group.children[1]) {
+      content.appendChild(group.children[1]);
+    }
+
+    group.appendChild(content);
+
+    // Load saved state immediately when popup opens
+    chrome.storage.local.get("accordionStates", function (result) {
+      const states = result.accordionStates || {};
+      if (states[groupId] === true) {
+        group.classList.add("collapsed");
+      }
+
+      // Add animation class after a brief delay to prevent initial animation
+      setTimeout(() => {
+        group.classList.add("animate");
+      }, 100);
+    });
+
+    // Add click handler with state saving
+    heading.addEventListener("click", () => {
+      group.classList.toggle("collapsed");
+
+      // Save state
+      chrome.storage.local.get("accordionStates", function (result) {
+        const states = result.accordionStates || {};
+        states[groupId] = group.classList.contains("collapsed");
+        chrome.storage.local.set({ accordionStates: states });
+      });
     });
   });
 });

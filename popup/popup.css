@@ -18,6 +18,9 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
+.container::-webkit-scrollbar {
+    display: none; 
+}
 
 h1 {
     margin: 0px;
@@ -47,6 +50,47 @@ h2 {
     box-sizing: border-box;
     border: none;
     box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.settings-group h2 {
+    font-size: 16px;
+    padding: 10px;
+    margin: 0;
+    border-bottom: 1px solid var(--cream);
+    color: var(--forest);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+}
+
+.settings-group h2::after {
+    content: '−';
+    font-size: 20px;
+    color: var(--forest);
+    opacity: 0.5;
+    transition: transform 0.3s ease;
+}
+
+.settings-group.collapsed h2::after {
+    content: '+';
+}
+
+.settings-group .settings-group-content {
+    overflow: hidden;
+    max-height: 1000px;
+    padding: 8px 0;
+}
+
+.settings-group.animate .settings-group-content {
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+
+.settings-group.collapsed .settings-group-content {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 .setting-item {
@@ -127,7 +171,6 @@ input:checked + .slider:before {
     transform: translateX(16px);
 }
 
-/* Color picker styles */
 .color-picker {
     display: flex;
     align-items: center;
@@ -321,8 +364,8 @@ input[type="number"] {
 }
 
 .style-toggle.active {
-  background: #4A7C59;
-  border-color: #4A7C59;
+  background: var(--matcha);
+  border-color: var(--matcha);
   color: white;
 }
 
@@ -484,6 +527,10 @@ input[type="number"] {
   background: var(--almond);
 }
 
+.settings-section::-webkit-scrollbar {
+  display: none; 
+}
+
 .settings-section.active {
   display: block;
   height: 100%;
@@ -508,7 +555,6 @@ input[type="number"] {
   transition: max-height 0.3s ease-out;
 }
 
-/* Update existing modal styles */
 .modal {
   background: rgba(0,0,0,0.7);
 }
@@ -523,24 +569,31 @@ input[type="number"] {
     overflow: hidden;
 }
 
-/* Update theme colors and styling */
+/* theme colors and styling */
 :root {
     /* Primary Colors */
-    --matcha: #8fa183;     /* Softened green */
-    --almond: #f5f3ef;     /* Lighter, more neutral background */
-    --pistache: #eceee4;   /* Softer accent */
-    --chai: #d9bea3;       /* Softened brown */
-    --carob: #796b54;      /* More muted brown */
-    --vanilla: #f0e9e1;    /* Softer vanilla */
-    --forest: #5d6654;     /* Softer forest green */
-    --cream: #f8f7f5;      /* Lighter cream */
+    --matcha: #8fa183;     /* Sote green */
+    --almond: #f5f3ef;     /* Neutral background */
+    --pistache: #eceee4;   /* Soft accent */
+    --chai: #d9bea3;       /* Soft brown */
+    --carob: #796b54;      /* Muted brown */
+    --vanilla: #f0e9e1;    /* Soft vanilla */
+    --forest: #5d6654;     /* Soft forest green */
+    --cream: #f8f7f5;      /* Light cream */
 
     /* Functional Variables */
     --primary: var(--matcha);
     --primary-dark: var(--carob);
     --accent: var(--pistache);
     --background: var(--almond);
-    --border: #e8e4de;     /* Subtler border color */
+    --border: #e8e4de; 
     --title: var(--carob);
-    --text: #666666;       /* Lighter text for better readability */
+    --text: #666666;  
+}
+
+
+.setting-item:has(> .image-upload-container) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
 }

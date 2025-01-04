@@ -32,13 +32,34 @@ The popup interface uses a tabbed navigation system with four main sections:
 - Images - Background and foal image settings
 - Advanced - Reset and advanced options
 
-The active tab persists between popup sessions using chrome.storage.local, with this storage pattern:
+Each section contains collapsible setting groups (accordions) that:
+- Open/close on header click
+- Remember their state between sessions
+- Use CSS transitions for smooth animations
+- Load in collapsed state without animation if previously closed
 
-<----CODE START---->
+#### Implementation Strategy:
+- CSS-driven animations using max-height and padding
+- State persistence using chrome.storage.local
+- Unique IDs based on heading text
+- Separate animation class to prevent initial transition
+
+#### Storage Pattern:
 {
-  activeTab: "appearance" // Can be "appearance", "typography", "images", or "advanced"
+  accordionStates: {
+    "navigation": false,
+    "interface": true,
+    "custom-fonts": false
+    // etc...
+  }
 }
-<----CODE END---->
+
+#### Technical Implementation:
+- Uses CSS for all animations and transitions
+- JavaScript only handles state management and toggle
+- Prevents initial animation flash when loading closed accordions
+- Maintains consistent styling with existing UI elements
+- Resets accordion states when all settings are reset
 
 ### Style Customization
 Core styling system handling global UI elements.
