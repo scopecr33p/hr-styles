@@ -83,6 +83,9 @@ document.addEventListener("DOMContentLoaded", function () {
       "h1Italic",
       "h1Underline",
       "h1Strike",
+      "linkItalic",
+      "linkUnderline",
+      "linkStrike",
     ],
     function (result) {
       // Set subtitle toggle states
@@ -94,6 +97,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (result.h1Italic) h1ItalicToggle.classList.add("active");
       if (result.h1Underline) h1UnderlineToggle.classList.add("active");
       if (result.h1Strike) h1StrikeToggle.classList.add("active");
+
+      // Set link toggle states
+      if (result.linkItalic) linkItalicToggle.classList.add("active");
+      if (result.linkUnderline) linkUnderlineToggle.classList.add("active");
+      if (result.linkStrike) linkStrikeToggle.classList.add("active");
     }
   );
 
@@ -141,6 +149,15 @@ document.addEventListener("DOMContentLoaded", function () {
           "h1Italic",
           "h1Underline",
           "h1Strike",
+          "linkSize",
+          "linkWeight",
+          "linkColor",
+          "linkAlign",
+          "linkTransform",
+          "linkFont",
+          "linkItalic",
+          "linkUnderline",
+          "linkStrike",
         ],
         resolve
       )
@@ -175,7 +192,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Get defaults from config
-    const { subtitle: subtitleDefaults, h1: h1Defaults } = config.features.find(
+    const {
+      subtitle: subtitleDefaults,
+      h1: h1Defaults,
+      link: linkDefaults,
+    } = config.features.find(
       (f) => f.name === "textCustomization"
     ).textElements;
 
@@ -209,6 +230,22 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
     h1Elements.forEach((id) =>
       ResetManager.setElementDefaults(id, h1Defaults.defaults)
+    );
+
+    // Set defaults for link elements
+    const linkElements = [
+      "linkSize",
+      "linkWeight",
+      "linkColor",
+      "linkAlign",
+      "linkTransform",
+      "linkFont",
+      "linkItalicToggle",
+      "linkUnderlineToggle",
+      "linkStrikeToggle",
+    ];
+    linkElements.forEach((id) =>
+      ResetManager.setElementDefaults(id, linkDefaults.defaults)
     );
 
     // Apply any saved values that override defaults
@@ -360,30 +397,46 @@ document.addEventListener("DOMContentLoaded", function () {
     element.addEventListener(event, () => updateTextElementStyles("h1"));
   });
 
+  // Update event listeners for link
+  [
+    [linkSize, "change"],
+    [linkColor, "input"],
+    [linkWeight, "change"],
+    [linkAlign, "change"],
+    [linkTransform, "change"],
+    [linkFont, "change"],
+  ].forEach(([element, event]) => {
+    element.addEventListener(event, () => updateTextElementStyles("link"));
+  });
+
   function updateFontDropdown() {
     // Get current selected values before clearing
     const currentSubtitleFont = subtitleFont.value;
     const currentH1Font = h1Font.value;
+    const currentLinkFont = linkFont.value;
 
     // Clear existing options except the default one
     while (subtitleFont.options.length > 1) subtitleFont.options.remove(1);
     while (h1Font.options.length > 1) h1Font.options.remove(1);
-
+    while (linkFont.options.length > 1) linkFont.options.remove(1);
     // Add primary font option if available
     if (primaryPreview.classList.contains("loaded")) {
       subtitleFont.add(new Option("Primary Font", "primary"));
       h1Font.add(new Option("Primary Font", "primary"));
+      linkFont.add(new Option("Primary Font", "primary"));
     }
 
     // Add secondary font option if available
     if (secondaryPreview.classList.contains("loaded")) {
       subtitleFont.add(new Option("Secondary Font", "secondary"));
       h1Font.add(new Option("Secondary Font", "secondary"));
+      linkFont.add(new Option("Secondary Font", "secondary"));
     }
 
     // Restore selected values
     if (currentSubtitleFont) subtitleFont.value = currentSubtitleFont;
     if (currentH1Font) h1Font.value = currentH1Font;
+    if (currentLinkFont) linkFont.value = currentLinkFont;
   }
 
   // Load existing font names and settings
@@ -400,7 +453,7 @@ document.addEventListener("DOMContentLoaded", function () {
       )
     ),
     new Promise((resolve) =>
-      chrome.storage.local.get(["subtitleFont", "h1Font"], resolve)
+      chrome.storage.local.get(["subtitleFont", "h1Font", "linkFont"], resolve)
     ),
   ]).then(([localResult, syncResult]) => {
     if (localResult.primaryFontName && localResult.primaryFont) {
@@ -421,6 +474,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (syncResult.h1Font) {
       h1Font.value = syncResult.h1Font;
+    }
+    if (syncResult.linkFont) {
+      linkFont.value = syncResult.linkFont;
     }
   });
 
@@ -579,14 +635,6 @@ document.addEventListener("DOMContentLoaded", function () {
     h1ItalicToggle,
     h1UnderlineToggle,
     h1StrikeToggle,
-    updateNavBackground: () =>
-      updateBackground("nav", navColorPicker.value, navOpacity.value),
-    updateInputBackground: () =>
-      updateBackground("input", inputColorPicker.value, inputOpacity.value),
-    updateTopNavBackground: () =>
-      updateBackground("topNav", topNavColorPicker.value, topNavOpacity.value),
-    updateTextElementStyles,
-    hideNavIcons,
     linkSize,
     linkWeight,
     linkColor,
@@ -596,6 +644,14 @@ document.addEventListener("DOMContentLoaded", function () {
     linkItalicToggle,
     linkUnderlineToggle,
     linkStrikeToggle,
+    updateNavBackground: () =>
+      updateBackground("nav", navColorPicker.value, navOpacity.value),
+    updateInputBackground: () =>
+      updateBackground("input", inputColorPicker.value, inputOpacity.value),
+    updateTopNavBackground: () =>
+      updateBackground("topNav", topNavColorPicker.value, topNavOpacity.value),
+    updateTextElementStyles,
+    hideNavIcons,
   });
 
   // Handle reset button click
@@ -673,11 +729,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Save to storage and update styles
     chrome.storage.local.set(styles, () => {
+      // Try to send message to tab, but don't throw if it fails
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            type: "updateTextStyles",
-          });
+          try {
+            chrome.tabs.sendMessage(
+              tabs[0].id,
+              { type: "updateTextStyles" },
+              // Add response callback to handle potential errors
+              (response) => {
+                if (chrome.runtime.lastError) {
+                  console.log("Tab not ready for style updates");
+                  // The changes are saved in storage, so they'll be applied when the page reloads
+                }
+              }
+            );
+          } catch (error) {
+            console.log("Failed to send message to tab, but styles are saved");
+          }
         }
       });
     });
@@ -699,6 +768,11 @@ document.addEventListener("DOMContentLoaded", function () {
             italic: h1ItalicToggle,
             underline: h1UnderlineToggle,
             strike: h1StrikeToggle,
+          },
+          link: {
+            italic: linkItalicToggle,
+            underline: linkUnderlineToggle,
+            strike: linkStrikeToggle,
           },
         };
 
@@ -742,6 +816,12 @@ document.addEventListener("DOMContentLoaded", function () {
     h1StrikeToggle,
   ]);
 
+  addTextStyleToggleHandlers("link", [
+    linkItalicToggle,
+    linkUnderlineToggle,
+    linkStrikeToggle,
+  ]);
+
   function validateTextSize(value, defaultValue) {
     const size = parseInt(value) || defaultValue;
     return Math.min(Math.max(size, TEXT_SIZE_CONFIG.min), TEXT_SIZE_CONFIG.max);
@@ -764,6 +844,15 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     this.value = validSize;
     updateTextElementStyles("h1");
+  });
+
+  linkSize.addEventListener("blur", function () {
+    const validSize = validateTextSize(
+      this.value,
+      TEXT_SIZE_CONFIG.defaults.link
+    );
+    this.value = validSize;
+    updateTextElementStyles("link");
   });
 
   // Load saved state
@@ -962,23 +1051,4 @@ document.addEventListener("DOMContentLoaded", function () {
       hideNavIcons: this.checked,
     });
   });
-
-  // Add link event listeners similar to h1 and subtitle
-  [
-    [linkSize, "change"],
-    [linkColor, "input"],
-    [linkWeight, "change"],
-    [linkAlign, "change"],
-    [linkTransform, "change"],
-    [linkFont, "change"],
-  ].forEach(([element, event]) => {
-    element.addEventListener(event, () => updateTextElementStyles("link"));
-  });
-
-  // Add link toggles to style toggle handlers
-  addTextStyleToggleHandlers("link", [
-    linkItalicToggle,
-    linkUnderlineToggle,
-    linkStrikeToggle,
-  ]);
 });
